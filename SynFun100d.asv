@@ -1,0 +1,9 @@
+function [y] = SynFun100d(xi)
+
+%UNTITLED Summary of this function goes here
+%   Detailed explanation goes here
+x = xi/2+1.5;
+x(20) = xi(20)+2;
+
+
+end
