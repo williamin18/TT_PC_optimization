@@ -36,8 +36,29 @@ end
 
 %Compute Parial derivatives
 dUx = cell(d,1);
-for i = 1:d
 
+%yl and yr are tempory vectors for efficiency, for one sample set i, 
+%yl{k}*(A(i,k,:)*Ux{k})*yr{k} = b(i) for the ideal solution 
+yl = cell(n_d,1);
+yr = cell(n_d,1);
+yl{1} = 1;
+yr{d} = 1;
+
+
+for i = 2:d
+    xk = reshape(x{k},[r(k), N(k), r(k+1)]);
+    xk = reshape(permute(xk, [2 1 3]),N(k),[]);
+    Axk = A(k,:,i)*xk;
+    Axk = reshape(Axk,r(k),r(k+1));
+    yl{k+1} = yl{k}*Axk;
+
+end
+for i = d-1:-1:1
+    xk = reshape(x{k},[r(k), N(k), r(k+1)]);
+    xk = reshape(permute(xk, [2 1 3]),N(k),[]);
+    Axk = A(k,:,i)*xk;
+    Axk = reshape(Axk,r(k),r(k+1));
+    yr{k-1} = Axk*yr{k};
 end
 
 
