@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Riemannian_GD(A,U,b,step_size)
+function [V,dUx] = TT_Riemannian_Gradient(A,U,b,step_size)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -19,6 +19,7 @@ function [V,dUx] = TT_Riemannian_GD(A,U,b,step_size)
 % TT-core is Ux_{k}. The Riemannian gradient is computed based on the partial
 % derivative with respect to Ux_{k}
 % 
+[~,~,n_samples] = size(A);
 [d,m,r] = TTsizes(x);
 V = U;
 Ux = cell(d,1);
@@ -34,35 +35,45 @@ for i = d:-1:2
     Ux{i-1} = V{i-1};
 end
 
-%Compute Parial derivatives
-dUx = cell(d,1);
+
 
 %yl and yr are tempory vectors for efficiency, for one sample set i, 
 %yl{k}*(A(i,k,:)*Ux{k})*yr{k} = b(i) for the ideal solution 
-yl = cell(n_d,1);
-yr = cell(n_d,1);
-yl{1} = 1;
-yr{d} = 1;
+yl = cell(d,1);
+yr = cell(1,d);
+yl{1} = ones(n_samples,1);
+yr{d} = ones(n_samples,1);
 
 
-for i = 2:d
-    xk = reshape(x{k},[r(k), N(k), r(k+1)]);
-    xk = reshape(permute(xk, [2 1 3]),N(k),[]);
-    Axk = A(k,:,i)*xk;
-    Axk = reshape(Axk,r(k),r(k+1));
-    yl{k+1} = yl{k}*Axk;
+for i = 1:d-1
+    xi = reshape(U{i},[r(i), m(i), r(i+1)]);
+    xi = reshape(permute(xi, [2 1 3]),m(i),[]);
+    Axi = A(i,:,:)'*xi;
+    Axi = reshape(Axi,n_samples,r(i),r(i+1));
+
+    temp = zeros(n_samples,r(i+1));
+    for j = 1:r(i+1)
+        temp(:,j) = sum(yl{i}.*Axi(:,:,j),2);
+    end
+    yl{i+1} = temp;
 
 end
-for i = d-1:-1:1
-    xk = reshape(x{k},[r(k), N(k), r(k+1)]);
-    xk = reshape(permute(xk, [2 1 3]),N(k),[]);
-    Axk = A(k,:,i)*xk;
-    Axk = reshape(Axk,r(k),r(k+1));
-    yr{k-1} = Axk*yr{k};
+for i = d:-1:2
+    xi = reshape(V{i},[r(i), m(i), r(i+1)]);
+    xi = reshape(permute(xi, [2 1 3]),m(i),[]);
+    Axi = A(i,:,:)'*xi;
+    Axi = reshape(Axi,n_samples,r(i),r(i+1));
+    temp = zeros(n_samples,r(i-1));
+    for j = 1:n_samples
+        temp(j,:) = Axi(j,:,:)*yl{i}(:,j);
+    end
+    yr{k-1} = temp;
 end
 
 
 
+%Compute Parial derivatives, dUx_k_j = sum(r(i)A(k,j,i)[yr{k}(:,i)'*yl{k}(i,:)]')
+dUx = cell(d,1);
 
 
 end
