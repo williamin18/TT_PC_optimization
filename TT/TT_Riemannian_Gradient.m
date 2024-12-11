@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Riemannian_Gradient(A,U,b,step_size)
+function [V,dUx] = TT_Riemannian_Gradient(A,U,r)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -8,8 +8,7 @@ function [V,dUx] = TT_Riemannian_Gradient(A,U,b,step_size)
 % we dont want to compute A explicitly, so we store A as a 10*4*600 tensor
 % 2. U is the initial guess of unknown in left orthogonal
 % TT-format(except the last TT-core)
-% 3. b is the vector of sample outputs 
-% 4. step_size 
+% 3. r is the residial vector
 %   Outputs: 
 % 1. V is the right orthogonalized U (except the first TT-core)
 % 2. dUx is the direvative of the non-orthogonal part 
@@ -74,7 +73,18 @@ end
 
 %Compute Parial derivatives, dUx_k_j = sum(r(i)A(k,j,i)[yr{k}(:,i)'*yl{k}(i,:)]')
 dUx = cell(d,1);
+for i = 1:d
+    dUx{i} = zeros(r(i)*m(i),r(i+1));
+    for j = i:m
+        dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{k}* diag(r.*A(i,j,:))*yl{k})';
+    end
+end
 
-
+%Orthogonalize
+for i = 1:d
+    L = Ux{i}\dUx{i};
+    dUx{i} = dUx{i}-Ux{i}*L;
+    dUx{i+1} = dUx{i+1} + v2h(L*h2v(Ux{i+1},m{i+1}),m{i+1});
+end
 end
 
