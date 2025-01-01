@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Riemannian_Gradient(A,U,r)
+function [V,dUx] = TT_Riemannian_Gradient(A,U,residual)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -8,7 +8,7 @@ function [V,dUx] = TT_Riemannian_Gradient(A,U,r)
 % we dont want to compute A explicitly, so we store A as a 10*4*600 tensor
 % 2. U is the initial guess of unknown in left orthogonal
 % TT-format(except the last TT-core)
-% 3. r is the residial vector
+% 3. residual is the residial vector Ax-b
 %   Outputs: 
 % 1. V is the right orthogonalized U (except the first TT-core)
 % 2. dUx is the direvative of the non-orthogonal part 
@@ -19,7 +19,7 @@ function [V,dUx] = TT_Riemannian_Gradient(A,U,r)
 % derivative with respect to Ux_{k}
 % 
 [~,~,n_samples] = size(A);
-[d,m,r] = TTsizes(x);
+[d,m,r] = TTsizes(U);
 V = U;
 Ux = cell(d,1);
 Ux{d} = U{d};
@@ -41,13 +41,14 @@ end
 yl = cell(d,1);
 yr = cell(1,d);
 yl{1} = ones(n_samples,1);
-yr{d} = ones(n_samples,1);
+%todo : fix yr
+yr{d} = ones(1,n_samples);
 
 
 for i = 1:d-1
     xi = reshape(U{i},[r(i), m(i), r(i+1)]);
     xi = reshape(permute(xi, [2 1 3]),m(i),[]);
-    Axi = A(i,:,:)'*xi;
+    Axi = reshape(A(i,:,:),[m(i),n_samples])'*xi;
     Axi = reshape(Axi,n_samples,r(i),r(i+1));
 
     temp = zeros(n_samples,r(i+1));
@@ -60,13 +61,13 @@ end
 for i = d:-1:2
     xi = reshape(V{i},[r(i), m(i), r(i+1)]);
     xi = reshape(permute(xi, [2 1 3]),m(i),[]);
-    Axi = A(i,:,:)'*xi;
+    Axi = reshape(A(i,:,:),[m(i),n_samples])'*xi;
     Axi = reshape(Axi,n_samples,r(i),r(i+1));
-    temp = zeros(n_samples,r(i-1));
+    temp = zeros(r(i),n_samples);
     for j = 1:n_samples
-        temp(j,:) = Axi(j,:,:)*yl{i}(:,j);
+        temp(:,j) = reshape(Axi(j,:,:),r(i),r(i+1))*yr{i}(:,j);
     end
-    yr{k-1} = temp;
+    yr{i-1} = temp;
 end
 
 
@@ -75,16 +76,19 @@ end
 dUx = cell(d,1);
 for i = 1:d
     dUx{i} = zeros(r(i)*m(i),r(i+1));
-    for j = i:m
-        dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{k}* diag(r.*A(i,j,:))*yl{k})';
+    for j = i:m(i)
+        dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{i}* diag(residual.*reshape(A(i,j,:),n_samples,1))*yl{i})';
     end
 end
 
 %Orthogonalize
-for i = 1:d
-    L = Ux{i}\dUx{i};
-    dUx{i} = dUx{i}-Ux{i}*L;
-    dUx{i+1} = dUx{i+1} + v2h(L*h2v(Ux{i+1},m{i+1}),m{i+1});
+for i = 1:d-1
+    % wrong codes
+    % [Q,~] = qr(Ux{i},'econ');
+    % dUx{i} = dUx{i}-Q*Q'*dUx{i};
+    L = U{i}'*dUx{i};
+    dUx{i} = dUx{i} - U{i}*L;
+    dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
 end
 end
 

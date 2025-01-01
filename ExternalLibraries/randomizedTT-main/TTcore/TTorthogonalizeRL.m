@@ -1,5 +1,5 @@
 function X = TTorthogonalizeRL(Y)
-% TTORTHOGONALIZERL  left to right orthogonalization of a TT-tensor.
+% TTORTHOGONALIZERL  right to left orthogonalization of a TT-tensor.
 %
 %  X = TTORTHOGONALIZERL(Y) returns a TT-tensor X equivalent to Y with right-orthogonal cores X{2}, ..., X{N}.
 
