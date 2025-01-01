@@ -19,4 +19,5 @@ x = TTrand(N,r);
 % x = X_true;
 %x{1} = x{1}-0.05*rand(n,r);
 %x = TT_GD(A,b,x,16,r,1e-3,20,A_test,b_test)
-x = TT_ALS(A,b,x,1,r,1e-3,50,A_test,b_test)
+x = TT_simple_GD(A,b,x,1,r,1e-3,50,A_test,b_test)
+% x = TT_ALS(A,b,x,1,r,1e-3,50,A_test,b_test)
