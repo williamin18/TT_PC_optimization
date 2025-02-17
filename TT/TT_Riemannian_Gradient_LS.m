@@ -1,4 +1,4 @@
-function [V,dUx,g_norm] = TT_Riemannian_Gradient(A,U,residual)
+function [V,dUx,g_norm] = TT_Riemannian_Gradient_LS(A,U,residual)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -43,30 +43,27 @@ end
 [~,yr] = Ax_right(A,V,1);
 
 
-%Compute Parial derivatives, dUx_k_j = sum(r(i)A(k,j,i)[yr{k}(:,i)'*yl{k}(i,:)]')
+%Compute direction that minimizes the residual for each TT-core
 dUx = cell(d,1);
 for i = 1:d
     dUx{i} = zeros(r(i)*m(i),r(i+1));
-    for j = i:m(i)
-        dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{i}'* diag(residual.*reshape(A(i,j,:),n_samples,1))*yl{i})'/n_samples;
-    end
+
+    Y_yl = kron( kron(ones(1,r(i+1)), ones(1,m(i))) , yl{i} );
+    Y_Ai = kron( kron(ones(1,r(i+1)), reshape(A(i,:,:),m(i),n_samples)') , ones(1,r(i)));
+    Y_yr = kron( kron(yr{i} ,ones(1,m(i)) ) , ones(1,r(i)));
+
+    Y = Y_yl.*Y_Ai.*Y_yr;
+    gi =  Y\residual;
+
+    dUx{i} = reshape(gi,[r(i)*m(i) r(i+1)]);
 end
+
 
 g_norm = 0;
 for i = 1:d
     g_norm = g_norm + norm(dUx{i},'fro');
 end
 
-%Orthogonalize
-% for i = 1:d-1
-%     % wrong codes
-%     % [Q,~] = qr(Ux{i},'econ');
-%     % dUx{i} = dUx{i}-Q*Q'*dUx{i};
-%     L = U{i}'*dUx{i};
-%     dUx{i} = dUx{i} - U{i}*L;
-%     dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
-% end
-% [Q,~] = qr(Ux{d},'econ');
-% dUx{d} = dUx{d} - Q*Q'*dUx{d};
+
 end
 

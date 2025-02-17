@@ -12,10 +12,12 @@ core_idx = 1; %index for TT-core updated at current iteration
 dir = 1; %direction to update next TT-core
 
 %test codes
+x0 = x;
 r_test = multi_r1_times_TT(A_test,x) - b_test;
 test_err = norm(r_test)/norm(b_test)
 
-alpha = 1;
+g_old_project = 0;
+norm_g_old = 1;
 
 for epoch = 1:max_epoches
     %shuffle
@@ -34,16 +36,33 @@ for epoch = 1:max_epoches
         [yl,~] = Ax_left(A_j,x,core_idx);    %product of cores of Ax with index larger than the current core index
         [yr,~] = Ax_right(A_j,x,core_idx);   %product of cores of Ax with index smaller than the current core index
         
-        Y_yl = kron( kron(ones(1,r(core_idx+1)), ones(1,m(core_idx))) , yl );
-        Y_Ai = kron( kron(ones(1,r(core_idx+1)), reshape(A_j(core_idx,:,:),m(core_idx),batch_size)') , ones(1,r(core_idx)));
-        Y_yr = kron( kron(yr ,ones(1,m(core_idx)) ) , ones(1,r(core_idx)));
-
-        Y = Y_yl.*Y_Ai.*Y_yr;
-
-        xi = Y\b_j;
-        x{core_idx} = (1-alpha)*x{core_idx}+ alpha*reshape(xi,[r(core_idx)*m(core_idx) r(core_idx+1)]);
-
         
+        g = zeros(r(core_idx)*m(core_idx),r(core_idx+1));%partial derivative 
+        for i = 1:m(core_idx)
+            g((i-1)*r(core_idx)+1:i*r(core_idx),:) = (yr* diag(residual.*reshape(A_j(core_idx,i,:),batch_size,1))*yl)';
+        end
+
+        norm_g = norm(g,'fro');
+        % g = 0.2*g + 0.8*g_old_project;
+
+        g = g + norm_g/norm_g_old*g_old_project;
+        norm_g_old = norm_g;
+      
+
+        %compute step size that minizmize Ax_(k+1)-b = r - alpha*(yl* (Ak *g)*yr )
+        
+        g2 = reshape(g, r(core_idx),m(core_idx),r(core_idx+1));
+        g2 = reshape(permute(g2,[2 1 3]),m(i),[]);
+        Ag2 = reshape(A_j(core_idx,:,:),[m(i) batch_size])'*g2;
+        Ag2 = reshape(Ag2, [batch_size, r(core_idx), r(core_idx+1)] );
+        yg = zeros(batch_size,r(i+1));
+        for i = 1:r(core_idx+1)
+            yg(:,i) = sum(yl.*Ag2(:,:,i),2);
+        end
+        yg = sum(yg.*yr',2);
+        alpha = yg'*residual/(yg'*yg);
+
+        x{core_idx} = x{core_idx} + alpha*g;
 
         %orthogonalize to update the next TT-core and project gradient to
         %the next TT-core
@@ -57,6 +76,7 @@ for epoch = 1:max_epoches
             x{core_idx + 1} = h2v(R_k * v2h(x{core_idx + 1}, m(core_idx + 1)), m(core_idx + 1));
             core_idx = core_idx + 1;
 
+            g_old_project = h2v( x{core_idx -1}'*g* v2h(x{core_idx},m(core_idx)) ,m(core_idx));
             
 
         else
@@ -70,10 +90,10 @@ for epoch = 1:max_epoches
 
             core_idx = core_idx -1;
 
+            g_old_project = x{core_idx}*(v2h(g,m(core_idx+1)) * v2h(x{core_idx + 1},m(core_idx+1))');
         end
         
     end
-    
     training_err = norm(b - multi_r1_times_TT(A,x))/norm(b)
     r_test = multi_r1_times_TT(A_test,x) - b_test;
     test_err = norm(r_test)/norm(b_test)

@@ -1,4 +1,4 @@
-function [x] = TT_ALS(A,b,x,batch_size,rank,tol,max_epoches,A_test,b_test)
+function [x] = TT_ALS_Adam(A,b,x,batch_size,rank,tol,max_epoches,A_test,b_test)
 %TT_ALS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -12,11 +12,18 @@ core_idx = 1; %index for TT-core updated at current iteration
 dir = 1; %direction to update next TT-core
 
 %test codes
+x0 = x;
 r_test = multi_r1_times_TT(A_test,x) - b_test;
 test_err = norm(r_test)/norm(b_test)
 
-alpha = 1;
-
+g_old_project = 0;
+alpha = 0.001;
+beta1 = 0.9;
+beta2 = 0.99;
+epsilon = 10^-8;
+t = 0;
+m_projection = 0;
+u = 0
 for epoch = 1:max_epoches
     %shuffle
     new_order = randperm(n_samples);
@@ -34,16 +41,19 @@ for epoch = 1:max_epoches
         [yl,~] = Ax_left(A_j,x,core_idx);    %product of cores of Ax with index larger than the current core index
         [yr,~] = Ax_right(A_j,x,core_idx);   %product of cores of Ax with index smaller than the current core index
         
-        Y_yl = kron( kron(ones(1,r(core_idx+1)), ones(1,m(core_idx))) , yl );
-        Y_Ai = kron( kron(ones(1,r(core_idx+1)), reshape(A_j(core_idx,:,:),m(core_idx),batch_size)') , ones(1,r(core_idx)));
-        Y_yr = kron( kron(yr ,ones(1,m(core_idx)) ) , ones(1,r(core_idx)));
-
-        Y = Y_yl.*Y_Ai.*Y_yr;
-
-        xi = Y\b_j;
-        x{core_idx} = (1-alpha)*x{core_idx}+ alpha*reshape(xi,[r(core_idx)*m(core_idx) r(core_idx+1)]);
-
         
+        g = zeros(r(core_idx)*m(core_idx),r(core_idx+1));%partial derivative 
+        for i = 1:m(core_idx)
+            g((i-1)*r(core_idx)+1:i*r(core_idx),:) = (yr* diag(residual.*reshape(A_j(core_idx,i,:),batch_size,1))*yl)';
+        end
+
+        t = t+1;
+        m_t = beta1*m_projection + (1-beta1)*g;
+        u = max(u*beta2,max(abs(g),[],'all'));
+        current_lr = alpha/(1-beta1^t);
+
+        x{core_idx} = x{core_idx} + current_lr*m_t/(u+epsilon);
+
 
         %orthogonalize to update the next TT-core and project gradient to
         %the next TT-core
@@ -57,7 +67,7 @@ for epoch = 1:max_epoches
             x{core_idx + 1} = h2v(R_k * v2h(x{core_idx + 1}, m(core_idx + 1)), m(core_idx + 1));
             core_idx = core_idx + 1;
 
-            
+            m_projection = h2v( x{core_idx -1}'*m_t* v2h(x{core_idx},m(core_idx)) ,m(core_idx));
 
         else
             if core_idx == 2
@@ -70,10 +80,11 @@ for epoch = 1:max_epoches
 
             core_idx = core_idx -1;
 
+            m_projection = x{core_idx}*(v2h(m_t,m(core_idx+1)) * v2h(x{core_idx + 1},m(core_idx+1))');
+
         end
         
     end
-    
     training_err = norm(b - multi_r1_times_TT(A,x))/norm(b)
     r_test = multi_r1_times_TT(A_test,x) - b_test;
     test_err = norm(r_test)/norm(b_test)

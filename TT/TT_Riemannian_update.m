@@ -13,6 +13,7 @@ for i = 2:d-1
     x{i} = reshape(temp,r(i)*2*m(i),r(i+1)*2);
 end
 x{d} = h2v([v2h(V{d},m(d)); a*v2h(dUx{d},m(d)) + v2h(U{d},m(d))],m(d));
-x = TTrounding(x,max_r);
+x = TTrounding(x,1e-5,max_r);
+
 end
 
