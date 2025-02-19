@@ -25,15 +25,17 @@ for epoch = 1:max_epoches
         b_j = b(j:j+batch_size-1);
         
         r = b_j - multi_r1_times_TT(A_j,x) ;
-        [V,dUx,g_norm] = TT_Riemannian_Gradient_LS(A_j,x,r);
+        [V,dUx,g_norm] = TT_Riemannian_Gradient(A_j,x,r);
+        
         if first_iteration
             dUx = TT_Riemannian_Gauge_update(x,V,dUx);
-            %first_iteration = false;
+            first_iteration = false;
         else
-            [Q_l,Q_r] = TT_Riemannian_projection(x,V,U_old,V_old);
+            dUx = TT_Riemannian_Gauge_update(x,V,dUx);
+            % [Q_l,Q_r] = TT_Riemannian_projection(x,V,U_old,V_old);
             dUx = TT_Riemannian_search_direction_update(x,V,dUx,g,g_norm,g_norm_old);
             %dUx = TT_Riemannian_search_direction_update_old(x,dUx,dUx_old,Q_l,Q_r,g_norm,g_norm_old);
-            dUx = TT_Riemannian_Gauge_update(x,V,dUx);
+            %dUx = TT_Riemannian_Gauge_update(x,V,dUx);
 
 
         end
@@ -42,9 +44,7 @@ for epoch = 1:max_epoches
         %record current search direction, which will be used to compute the
         %search direction in the next iteration
         g_norm_old = g_norm;
-        U_old = x;
-        V_old = V;
-        dUx_old = dUx;
+
 
 
         %compute step size

@@ -52,10 +52,10 @@ for epoch = 1:max_epoches
         %compute step size that minizmize Ax_(k+1)-b = r - alpha*(yl* (Ak *g)*yr )
         
         g2 = reshape(g, r(core_idx),m(core_idx),r(core_idx+1));
-        g2 = reshape(permute(g2,[2 1 3]),m(i),[]);
-        Ag2 = reshape(A_j(core_idx,:,:),[m(i) batch_size])'*g2;
+        g2 = reshape(permute(g2,[2 1 3]),m(core_idx),[]);
+        Ag2 = reshape(A_j(core_idx,:,:),[m(core_idx) batch_size])'*g2;
         Ag2 = reshape(Ag2, [batch_size, r(core_idx), r(core_idx+1)] );
-        yg = zeros(batch_size,r(i+1));
+        yg = zeros(batch_size,r(core_idx+1));
         for i = 1:r(core_idx+1)
             yg(:,i) = sum(yl.*Ag2(:,:,i),2);
         end

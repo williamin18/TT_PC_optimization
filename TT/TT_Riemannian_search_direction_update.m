@@ -31,13 +31,19 @@ end
 
 
 dUx2 = cell(d,1);
-for i = 1:d
+for i = 1:d-1
     dUx2{i} =  h2v( Y_l{i}* v2h(g_old{i},m(i)) , m(i))* (Y_r{i});
+    dUx2{i} =  dUx2{i} - U{i}*U{i}'*dUx2{i};
 end
 
+dUx2{d} =  h2v( Y_l{d}* v2h(g_old{d},m(d)) , m(d));
+% [Q,~] = qr(U{d},'econ');
+% dUx2{d} =  dUx2{d} - Q*Q'*dUx2{d};
+
 beta = g_norm/old_g_norm;
+
 for i = 1:d
-    dUx{i} = dUx{i} + beta * h2v( Y_l{i}* v2h(g_old{i},m(i)) , m(i))* (Y_r{i});
+    dUx{i} = dUx{i} + beta * dUx2{i};
 end
 
 
