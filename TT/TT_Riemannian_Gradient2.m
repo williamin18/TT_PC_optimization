@@ -47,16 +47,26 @@ end
 dUx = cell(d,1);
 for i = 1:d
     dUx{i} = zeros(r(i)*m(i),r(i+1));
-    for j = i:m(i)
+
+    
+    for j = 1:m(i)
+        temp = residual.*reshape(A(i,j,:),n_samples,1);
+        temp = yr{i}.*repelem(temp,1,r(i));
+        
         dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{i}'* diag(residual.*reshape(A(i,j,:),n_samples,1))*yl{i})';
     end
+    
+
 
     %keep orthogonal direction
     dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
 
     %find optimal step size minizmize A*x_new-b = r - alpha*(yl* (Ak *dUx)*yr )
     dUxi = reshape(dUx{i}, r(i),m(i),r(i+1));
-    AdU = tensorprod(reshape(A(i,:,:),[m(i) n_samples]),dUxi, 1, 2);
+    dUxi = reshape(permute(dUxi,[2 1 3]),m(i),[]);
+    AdU = reshape(A(i,:,:), m(i),n_samples)'*dUxi;
+    AdU = reshape(AdU,n_samples,r(i),r(i+1));
+
     Yi = zeros(n_samples,r(i+1));
     for j = 1:r(i+1)
         Yi(:,j) = sum(yl{i}.*AdU(:,:,j),2);
@@ -69,6 +79,6 @@ for i = 1:d
 end
 
 
-
+g_norm = 0;
 end
 

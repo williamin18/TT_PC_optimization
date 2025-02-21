@@ -21,7 +21,7 @@ x = TTrand(N,r);
 % x = X_true;
 % x{1} = x{1}-0.05*rand(n,r);
 tic
-x = TT_GD(A,b,x,n_samples,r,1e-3,2000,A_test,b_test)
+x = TT_GD(A,b,x,n_samples,r,1e-1,2000,A_test,b_test)
 % % x = TT_simple_GD(A,b,x,1,r,1e-3,50,A_test,b_test)
 % x = TT_ALS(A,b,x,n_samples,r,1e-3,2000,A_test,b_test)
 toc

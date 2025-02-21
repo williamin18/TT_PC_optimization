@@ -25,20 +25,20 @@ for epoch = 1:max_epoches
         b_j = b(j:j+batch_size-1);
         
         r = b_j - multi_r1_times_TT(A_j,x) ;
-        [V,dUx,g_norm] = TT_Riemannian_Gradient(A_j,x,r);
+        [V,dUx,g_norm] = TT_Riemannian_Gradient2(A_j,x,r);
         
-        if first_iteration
-            dUx = TT_Riemannian_Gauge_update(x,V,dUx);
-            first_iteration = false;
-        else
-            dUx = TT_Riemannian_Gauge_update(x,V,dUx);
-            % [Q_l,Q_r] = TT_Riemannian_projection(x,V,U_old,V_old);
-            dUx = TT_Riemannian_search_direction_update(x,V,dUx,g,g_norm,g_norm_old);
-            %dUx = TT_Riemannian_search_direction_update_old(x,dUx,dUx_old,Q_l,Q_r,g_norm,g_norm_old);
-            %dUx = TT_Riemannian_Gauge_update(x,V,dUx);
-
-
-        end
+        % if first_iteration
+        %     dUx = TT_Riemannian_Gauge_update(x,V,dUx);
+        %     %first_iteration = false;
+        % else
+        %     dUx = TT_Riemannian_Gauge_update(x,V,dUx);
+        %     % [Q_l,Q_r] = TT_Riemannian_projection(x,V,U_old,V_old);
+        %     dUx = TT_Riemannian_search_direction_update(x,V,dUx,g,g_norm,g_norm_old);
+        %     %dUx = TT_Riemannian_search_direction_update_old(x,dUx,dUx_old,Q_l,Q_r,g_norm,g_norm_old);
+        %     %dUx = TT_Riemannian_Gauge_update(x,V,dUx);
+        % 
+        % 
+        % end
 
 
         %record current search direction, which will be used to compute the
@@ -49,13 +49,13 @@ for epoch = 1:max_epoches
 
         %compute step size
         %min ||b-A(x+alpha*g)||  => min ||r - alpha*A*g||
-        g = TT_Riemannian_fromGTensor(x,V,dUx);
-        Ag = multi_r1_times_TT(A_j,g);
-        alpha = Ag'*r/(Ag'*Ag);
+        % g = TT_Riemannian_fromGTensor(x,V,dUx);
+        % Ag = multi_r1_times_TT(A_j,g);
+        % alpha = Ag'*r/(Ag'*Ag);
 
 
         %update
-        x = TT_Riemannian_update(x,V,dUx,alpha,rank);
+        x = TT_Riemannian_update(x,V,dUx,1,rank);
 
     end
 
