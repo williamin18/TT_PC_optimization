@@ -1,4 +1,4 @@
-function [V,dUx,g_norm] = TT_Riemannian_Gradient_LS(A,U,residual)
+function [V,dUx,g_norm] = TT_Riemannian_Gradient_LS2(A,U,residual)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -45,6 +45,8 @@ end
 
 %Compute direction that minimizes the residual for each TT-core
 dUx = cell(d,1);
+
+g_succeed = 0;
 for i = 1:d
 
     %minimize yl*(a_i*U_i)*yr-r
@@ -55,10 +57,19 @@ for i = 1:d
     Y_yr = kron( kron(yr{i} ,ones(1,m(i)) ) , ones(1,r(i)));
 
     Y = Y_yl.*Y_Ai.*Y_yr;
-    gi =  Y\residual;
     
+    gi =  Y\residual;
     residual = residual-Y*gi;
-    dUx{i} = reshape(gi,[r(i)*m(i) r(i+1)]);
+
+    
+    gi =  reshape(gi,[r(i)*m(i) r(i+1)])+g_succeed;
+    if i~=d
+        L = U{i}'*gi;
+        gi = gi - U{i}*L;
+        g_succeed = h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
+    end
+
+    dUx{i} = gi;
 end
 
 
