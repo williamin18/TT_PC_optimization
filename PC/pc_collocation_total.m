@@ -1,4 +1,4 @@
-function [y_test,PC_coefficients] = pc_collocation_total(x_train,y_train,x_test,order,polynomial)
+function [y_out,PC_coefficients] = pc_collocation_total(x_train,y_train,x_out,order,polynomial)
 %SOLVECOEFFICIENTSTOTAL Summary of this function goes here
 %   Detailed explanation goes here
 switch polynomial
@@ -28,10 +28,10 @@ end
 PC_coefficients = sample_polynomial_mat\y_train;
 
 [~,n_y] = size(y_train);
-[n_samples,~] = size(x_test);
-y_test = zeros(n_samples,n_y);
+[n_samples,~] = size(x_out);
+y_out = zeros(n_samples,n_y);
 for i = 1:n_samples
-    ksi = x_test(i,:);
+    ksi = x_out(i,:);
     h = ones(n_total,1);
 
     for j = 1:n_total
@@ -41,7 +41,7 @@ for i = 1:n_samples
             end
         end
     end
-    y_test(i,:) = h'*PC_coefficients;
+    y_out(i,:) = h'*PC_coefficients;
 end
 end
 
