@@ -1,6 +1,6 @@
-function [dXk] = TT_Riemannian_Newton(yl,yr,Ak,Xk,residual)
-%optimize yl*(Ak*dXk)*yr = r s.t. dXk'Xk = 0
-
+function [dXk] = TT_Newton(yl,yr,Ak,Xk,residual)
+%TT_NEWTON Summary of this function goes here
+%   Detailed explanation goes here
 [n_samples,m] = size(Ak);
 [~,r_k] = size(yl);
 [~,r_k1] = size(yr);
@@ -11,14 +11,7 @@ Y_yr = kron( kron(yr,           ones(1,m)), ones(1,r_k));
 
 Y = Y_yl.*Y_Ai.*Y_yr;
 
-
-X = kron(eye(r_k1),Xk');
-lambda =  (X/(Y'*Y)*X) \ (X/(Y'*Y)*Y*residual);
-dXk = (Y'*Y)\(A'*residual-X'*lambda);
-
-
+dXk =  Y\residual;
 dXk = reshape(dXk,[r_k*m, r_k1]);
-
-
-
 end
+
