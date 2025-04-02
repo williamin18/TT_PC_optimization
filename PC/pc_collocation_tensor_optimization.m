@@ -6,5 +6,7 @@ function [y_test,PC_coefficients] = pc_collocation_tensor_optimization(x_train,y
 sample_polynomial_tensor = genPolynomialSamplesTensor(x_train,order,polynomial);
 
 PC_coefficients = TT_ALS%(sample_polynomial_tensor,y_train)
+test_sample_polynomial_tensor = genPolynomialSamplesTensor(x_test,order,polynomial);
+y_test = multi_r1_times_TT(test_sample_polynomial_tensor,PC_coefficients);
 end
 
