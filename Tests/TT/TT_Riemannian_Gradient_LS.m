@@ -1,4 +1,4 @@
-function [V,dUx,g_norm] = TT_Riemannian_Gradient2(A,U,residual)
+function [V,dUx,g_norm] = TT_Riemannian_Gradient_LS(A,U,residual)
 %TT_RIEMANNIAN_GD computes the Riemannian gradient in implicit format
 %This function is based on https://sma.epfl.ch/~anchpcommon/publications/ttcompletion.pdf
 %   Inputs :
@@ -43,46 +43,27 @@ end
 [~,yr] = Ax_right(A,V,1);
 
 
-%Compute Parial derivatives, dUx_k_j = sum(r(i)A(k,j,i)[yr{k}(:,i)'*yl{k}(i,:)]')
+%Compute direction that minimizes the residual for each TT-core
 dUx = cell(d,1);
-r_n = residual;
 for i = 1:d
     dUx{i} = zeros(r(i)*m(i),r(i+1));
 
-    
-    for j = 1:m(i)
-        temp = residual.*reshape(A(i,j,:),n_samples,1);
-        temp = yr{i}.*repelem(temp,1,r(i+1));
-        dUx{i}((j-1)*r(i)+1:j*r(i),:) = (temp'*yl{i})';
+    Y_yl = kron( kron(ones(1,r(i+1)), ones(1,m(i))) , yl{i} );
+    Y_Ai = kron( kron(ones(1,r(i+1)), reshape(A(i,:,:),m(i),n_samples)') , ones(1,r(i)));
+    Y_yr = kron( kron(yr{i} ,ones(1,m(i)) ) , ones(1,r(i)));
 
+    Y = Y_yl.*Y_Ai.*Y_yr;
+    gi =  Y\residual;
 
-        
-        % dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yr{i}'* diag(residual.*reshape(A(i,j,:),n_samples,1))*yl{i})';
-    end
-    
-
-
-    %keep orthogonal direction
-    dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
-
-    %find optimal step size minizmize A*x_new-b = r - alpha*(yl* (Ak *dUx)*yr )
-    dUxi = reshape(dUx{i}, r(i),m(i),r(i+1));
-    dUxi = reshape(permute(dUxi,[2 1 3]),m(i),[]);
-    AdU = reshape(A(i,:,:), m(i),n_samples)'*dUxi;
-    AdU = reshape(AdU,n_samples,r(i),r(i+1));
-
-    Yi = zeros(n_samples,r(i+1));
-    for j = 1:r(i+1)
-        Yi(:,j) = sum(yl{i}.*AdU(:,:,j),2);
-    end
-    Yi = sum(Yi.*yr{i},2);
-    alpha = Yi'*residual/(Yi'*Yi);
-    dUx{i} = alpha*dUx{i};
-    residual = residual-alpha*Yi;
-
+    dUx{i} = reshape(gi,[r(i)*m(i) r(i+1)]);
 end
 
 
 g_norm = 0;
+for i = 1:d
+    g_norm = g_norm + norm(dUx{i},'fro');
+end
+
+
 end
 

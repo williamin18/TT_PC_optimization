@@ -2,7 +2,7 @@ n = 4;
 d = 10;
 N = n*ones(d,1);
 r = 3;
-n_samples = 1500;
+n_samples = 2000;
 n_test_samples = 100;
 
 
