@@ -18,7 +18,7 @@ sample_polynomial_mat = ones(n_train,n_total);
 for i = 1:n_train
     for j = 1:n_total
         for k = 1:d
-            if H(j,k)>1
+            if H(j,k)>0
                 sample_polynomial_mat(i,j) = sample_polynomial_mat(i,j)*f(x_train(i,k),H(j,k));
             end
         end
@@ -36,7 +36,7 @@ for i = 1:n_samples
 
     for j = 1:n_total
         for k = 1:d
-            if H(j,k)>1
+            if H(j,k)>0
                 h(j)=h(j)*f(ksi(k),H(j,k));
             end
         end
