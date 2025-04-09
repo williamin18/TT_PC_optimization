@@ -12,21 +12,36 @@ function [x] = TT_GD(A,b,x,batch_size,rank,tol,max_epoches,A_test,b_test)
 [d,m,n_samples] = size(A);
 
 x = TTorthogonalizeLR(x);
-first_iteration = true;
 
+%%%%%%%%
+r_old = 2 * (b - multi_r1_times_TT(A,x)) ;
+dx_TT = 0;
+first_iteration = 1;
+%%%%%%%%
 
 for epoch = 1:max_epoches
     %shuffle
-    new_order = randperm(n_samples);
-    A = A(:,:,new_order);
-    b = b(new_order);
+%     new_order = randperm(n_samples);
+%     A = A(:,:,new_order);
+%     b = b(new_order);
     for j = 1:batch_size:n_samples-batch_size+1
         A_j = A(:,:,j:j+batch_size-1);
         b_j = b(j:j+batch_size-1);
         
         r = b_j - multi_r1_times_TT(A_j,x) ;
-        [V,dUx,g_norm] = TT_Riemannian_Gradient2(A_j,x,r);
+%         [V,dUx] = TT_Newton_Gradient(A_j,x,r);
         
+        %%%%%%%%%%%%%%%
+        if first_iteration
+            beta = -1;
+            first_iteration = 0;
+        else
+            beta = (r'*r)/(r_old'*r_old);
+        end
+        [V,dUx] = TT_Newton_Gradient_Momentum(A_j,x,r,beta,dx_TT);
+        dx_TT = TT_Riemannian_fromGTensor(x,V,dUx);
+        r_old = r;
+        %%%%%%%%%%%%%%
         % if first_iteration
         %     dUx = TT_Riemannian_Gauge_update(x,V,dUx);
         %     %first_iteration = false;
@@ -41,9 +56,6 @@ for epoch = 1:max_epoches
         % end
 
 
-        %record current search direction, which will be used to compute the
-        %search direction in the next iteration
-        g_norm_old = g_norm;
 
 
 

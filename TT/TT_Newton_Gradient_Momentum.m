@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Newton_Gradient(A,U,residual)
+function [V,dUx] = TT_Newton_Gradient_Momentum(A,U,residual,beta,dx_old)
 %TT_NEWTON_GRADIENT Summary of this function goes here
 %   Detailed explanation goes here
 [~,~,n_samples] = size(A);
@@ -34,6 +34,13 @@ for i = 1:d
     % %keep orthogonal direction
     % dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
 end
+if beta>0
+    dU_old = TT_Riemannian_projection(U,V,dx_old);
+    for i = 1:d
+        dUx{i}  = dUx{i} + beta*dU_old{i};
+    end
+end
+
 
 Adx = zeros(n_samples,d);
 for i = 1:d
@@ -51,6 +58,7 @@ end
 
 alpha = Adx\residual;
 % alpha = lsqnonneg(Adx,residual);
+
 for i = 1:d
     dUx{i} = alpha(i)*dUx{i};
 end

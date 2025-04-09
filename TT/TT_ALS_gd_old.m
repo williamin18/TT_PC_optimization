@@ -1,4 +1,4 @@
-function [x] = TT_ALS(A,b,x,batch_size,rank,tol,max_epoches,A_test,b_test)
+function [x] = TT_ALS_gd_old(A,b,x,batch_size,rank,tol,max_epoches,A_test,b_test)
 %TT_ALS Summary of this function goes here
 %   Detailed explanation goes here
 
