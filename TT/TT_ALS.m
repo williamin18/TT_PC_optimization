@@ -2,63 +2,74 @@ function [x] = TT_ALS(A,b,x,rank,tol,max_epoches,A_test,b_test)
 %TT_ALS Summary of this function goes here
 %   Detailed explanation goes here
 
-[d,~,n_samples] = size(A);
+d = length(A);
+[n_samples,~] = size(A{1});
 [~,m,r] = TTsizes(x);
 
 
 x = TTorthogonalizeRL(x); %orthogonalize
 
-core_idx = 1; %index for TT-core updated at current iteration
-
+i = 1; %index for TT-core updated at current iteration
+dir = 1;
+%stores product of cores of Ax with index larger/smaller than the current core index
+[~,yr] = Ax_right(A,x,i);      
+yl = cell(d,1);
+yl{1} = ones(n_samples,1);
 for epoch = 1:max_epoches
-    %shuffle
 
-        residual = b - multi_r1_times_TT(A,x);
-        
+   
         %compute the product of A with the fixed TT-cores to compute the
         %partial derivative to update the current TT-core
-
-        [~,yr] = Ax_right(A_j,x,core_idx);   %product of cores of Ax with index smaller than the current core index
-        
-        Y_yl = kron( kron(ones(1,r(core_idx+1)), ones(1,m(core_idx))) , yl );
-        Y_Ai = kron( kron(ones(1,r(core_idx+1)), reshape(A_j(core_idx,:,:),m(core_idx),batch_size)') , ones(1,r(core_idx)));
-        Y_yr = kron( kron(yr ,ones(1,m(core_idx)) ) , ones(1,r(core_idx)));
-
-        Y = Y_yl.*Y_Ai.*Y_yr;
-
-        xi = Y\b_j;
-        x{core_idx} = (1-alpha)*x{core_idx}+ alpha*reshape(xi,[r(core_idx)*m(core_idx) r(core_idx+1)]);
-
-        
+        x{i} = TT_Newton(yl{i},yr{i},A{i},x{i},b);
+ 
 
         %orthogonalize to update the next TT-core and project gradient to
         %the next TT-core
         if dir
-            if core_idx == d-1
+            if i == d-1
                 dir = 0;
             end
             
 
-            [x{core_idx}, R_k] = qr(x{core_idx},0);
-            x{core_idx + 1} = h2v(R_k * v2h(x{core_idx + 1}, m(core_idx + 1)), m(core_idx + 1));
-            core_idx = core_idx + 1;
+            [x{i}, R_k] = qr(x{i},0);
+            x{i + 1} = h2v(R_k * v2h(x{i + 1}, m(i + 1)), m(i + 1));
 
+
+            xi = reshape(x{i},[r(i), m(i), r(i+1)]);
+            xi = reshape(permute(xi, [2 1 3]),m(i),[]);
+            Axi = A{i}*xi;
+            Axi = reshape(Axi,n_samples,r(i),r(i+1));
+
+            yl{i+1} = zeros(n_samples,r(i+1));
+            for j = 1:r(i+1)
+                yl{i+1}(:,j)  = sum(yl{i}.*Axi(:,:,j),2);
+            end
             
+            i = i + 1;
 
         else
-            if core_idx == 2
+            if i == 2
                 dir = 1;
             end
             
-            [Q_k, R_k] = qr(v2h(x{core_idx}, m(core_idx))', 0);
-            x{core_idx} = h2v(Q_k', m(core_idx));
-            x{core_idx-1} = x{core_idx-1} * R_k';
+            [Q_k, R_k] = qr(v2h(x{i}, m(i))', 0);
+            x{i} = h2v(Q_k', m(i));
+            x{i-1} = x{i-1} * R_k';
 
-            core_idx = core_idx -1;
+
+            xi = reshape(x{i},[r(i), m(i), r(i+1)]);
+            xi = reshape(permute(xi, [2 3 1]),m(i),[]);
+            Axi = A{i}*xi;
+            Axi = reshape(Axi,n_samples,r(i+1),r(i));
+            yr{i-1} = zeros(n_samples,r(i));
+            for j = 1:r(i)
+                yr{i-1}(:,j) = sum(yr{i}.*Axi(:,:,j),2);
+            end
+
+            i = i -1;
 
         end
         
-    end
     
     training_err = norm(b - multi_r1_times_TT(A,x))/norm(b)
     r_test = multi_r1_times_TT(A_test,x) - b_test;
@@ -66,6 +77,6 @@ for epoch = 1:max_epoches
     if test_err < tol
         break
     end
-end
+
 end
 

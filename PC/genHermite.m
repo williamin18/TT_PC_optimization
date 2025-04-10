@@ -3,7 +3,7 @@ function [y] = genHermite(xi,order)
 %   Detailed explanation goes here
 switch order
     case 0
-        y = 1;
+        y = ones(size(xi));
     case 1
         y = xi;
     case 2

@@ -12,10 +12,11 @@ switch polynomial
         err('Unsupported polynomial type')
 end
 [n,d]=size(samples);
-samples = samples';
-y = zeros(d,order,n);
-for i = 0:order
-    y(:,i+1,:) = f(samples,i);
+y = cell(d,1);
+for i = 1:d
+    for j = 0:order
+        y{i}(:,j+1) = f(samples(:,i),j);
+    end
 end
 
 end
