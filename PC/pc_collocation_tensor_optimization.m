@@ -26,8 +26,11 @@ for i = 1:n_b
 end
 
 predict_samples = genPolynomialSamplesTensor(A_predict,order,polynomial);
+
+[n_predict_samples,~] = size(A_predict);
+b_predict = zeros(n_predict_samples,n_b);
 for i = 1:n_b
-    b_predict(i,:) = multi_r1_times_TT(predict_samples,PC_coefficients{i});
+    b_predict(:,i) = multi_r1_times_TT(predict_samples,PC_coefficients{i});
 end
 end
 
