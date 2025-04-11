@@ -1,6 +1,6 @@
 function b = multi_r1_times_TT(A,x)
 [n_samples,~] = size(A{1});
-[~,N,R] = TTsizes(x);
+[n_d,N,R] = TTsizes(x);
 W = A{1}*x{1};
 for i = 2:n_d
     xi = reshape(x{i},[R(i), N(i), R(i+1)]);

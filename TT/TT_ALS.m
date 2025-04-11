@@ -15,6 +15,11 @@ dir = 1;
 [~,yr] = Ax_right(A,x,i);      
 yl = cell(d,1);
 yl{1} = ones(n_samples,1);
+
+break_counter = 0;
+break_limit = 5;
+err_old = 100;
+
 for epoch = 1:max_epoches
 
    
@@ -77,6 +82,15 @@ for epoch = 1:max_epoches
     if test_err < tol
         break
     end
-
+    
+    if   err_old-training_err < tol/100
+        break_counter = break_counter+1;
+        if break_counter > break_limit
+            break
+        end
+    else
+        break_counter = 0;
+    end
+    err_old = training_err;
 end
 
