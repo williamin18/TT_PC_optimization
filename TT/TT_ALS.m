@@ -1,4 +1,4 @@
-function [x] = TT_ALS(A,b,x,rank,tol,max_epoches,A_test,b_test)
+function [x,training_err,test_err,epoch] = TT_ALS(A,b,x,rank,tol,max_epoches,A_test,b_test,lambda)
 %TT_ALS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -25,7 +25,8 @@ for epoch = 1:max_epoches
    
         %compute the product of A with the fixed TT-cores to compute the
         %partial derivative to update the current TT-core
-        x{i} = TT_Newton(yl{i},yr{i},A{i},x{i},b);
+        residual = b - multi_r1_times_TT(A,x);
+        x{i} = x{i} + TT_Newton(yl{i},yr{i},A{i},x{i},residual,lambda);
  
 
         %orthogonalize to update the next TT-core and project gradient to
@@ -76,9 +77,9 @@ for epoch = 1:max_epoches
         end
         
     
-    training_err = norm(b - multi_r1_times_TT(A,x))/norm(b)
+    training_err = norm(residual)/norm(b);
     r_test = multi_r1_times_TT(A_test,x) - b_test;
-    test_err = norm(r_test)/norm(b_test)
+    test_err = norm(r_test)/norm(b_test);
     if test_err < tol
         break
     end
