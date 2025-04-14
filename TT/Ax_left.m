@@ -10,7 +10,7 @@ yl{1} = ones(n_samples,1);
 for i = 1:k-1
     xi = reshape(x{i},[r(i), m(i), r(i+1)]);
     xi = reshape(permute(xi, [2 1 3]),m(i),[]);
-    Axi = A{i}'*xi;
+    Axi = A{i}*xi;
     Axi = reshape(Axi,n_samples,r(i),r(i+1));
 
     temp = zeros(n_samples,r(i+1));

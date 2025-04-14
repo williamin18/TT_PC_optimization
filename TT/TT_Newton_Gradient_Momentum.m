@@ -1,7 +1,7 @@
-function [V,dUx] = TT_Newton_Gradient_Momentum(A,U,residual,beta,dx_old)
+function [V,dUx] = TT_Newton_Gradient_Momentum(A,U,residual,beta,dx_old,lambda)
 %TT_NEWTON_GRADIENT Summary of this function goes here
 %   Detailed explanation goes here
-[~,~,n_samples] = size(A);
+[n_samples,~] = size(A{1});
 [d,m,r] = TTsizes(U);
 V = U;
 Ux = cell(d,1);
@@ -23,16 +23,7 @@ end
 dUx = cell(d,1);
 
 for i = 1:d
-    dUx{i} = TT_Newton(yl{i},yr{i},reshape(A(i,:,:),[m(i),n_samples])',U{i},residual);
-
-    % dUx{i} = zeros(r(i)*m(i),r(i+1));
-    % for j = 1:m(i)
-    %     temp = residual.*reshape(A(i,j,:),n_samples,1);
-    %     temp = yr{i}.*repelem(temp,1,r(i+1));
-    %     dUx{i}((j-1)*r(i)+1:j*r(i),:) = (temp'*yl{i})';  
-    % end
-    % %keep orthogonal direction
-    % dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
+    dUx{i} = TTcore_Newton(yl{i},yr{i},A{i},Ux{i},residual,lambda);
 end
 if beta>0
     dU_old = TT_Riemannian_projection(U,V,dx_old);
@@ -46,7 +37,7 @@ Adx = zeros(n_samples,d);
 for i = 1:d
     dUi = reshape(dUx{i},[r(i), m(i), r(i+1)]);
     dUi = reshape(permute(dUi, [2 1 3]),m(i),[]);
-    AdU = reshape(A(i,:,:), m(i),n_samples)'*dUi;
+    AdU = A{i}*dUi;
     AdU = reshape(AdU,n_samples,r(i),r(i+1));
 
     Adxi = zeros(n_samples,r(i+1));
@@ -57,7 +48,7 @@ for i = 1:d
 end
 
 alpha = Adx\residual;
-% alpha = lsqnonneg(Adx,residual);
+%alpha = lsqnonneg(Adx,residual);
 
 for i = 1:d
     dUx{i} = alpha(i)*dUx{i};

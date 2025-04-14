@@ -26,7 +26,7 @@ for epoch = 1:max_epoches
         %compute the product of A with the fixed TT-cores to compute the
         %partial derivative to update the current TT-core
         residual = b - multi_r1_times_TT(A,x);
-        x{i} = x{i} + TT_Newton(yl{i},yr{i},A{i},x{i},residual,lambda);
+        x{i} = x{i} + TTcore_Newton(yl{i},yr{i},A{i},x{i},residual,lambda);
  
 
         %orthogonalize to update the next TT-core and project gradient to

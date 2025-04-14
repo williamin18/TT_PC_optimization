@@ -1,4 +1,4 @@
-function [dXk] = TT_Newton(yl,yr,Ak,Xk,residual,lambda)
+function [dXk] = TTcore_Newton(yl,yr,Ak,Xk,residual,lambda)
 %TT_NEWTON Summary of this function goes here
 %   Detailed explanation goes here
 
