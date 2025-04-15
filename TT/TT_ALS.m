@@ -84,7 +84,7 @@ for epoch = 1:max_epoches
         break
     end
     
-    if   err_old-training_err < tol/100
+    if   err_old-training_err < tol/10
         break_counter = break_counter+1;
         if break_counter > break_limit
             break

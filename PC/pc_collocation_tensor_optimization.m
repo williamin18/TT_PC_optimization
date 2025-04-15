@@ -16,7 +16,7 @@ lambda1 = left_preconditioning_parameter;
 
 
 [n_samples,d] = size(A_train);
-n_train = round(0.9*n_samples);
+n_train = round(0.5*n_samples);
 training_samples = genPolynomialSamplesTensor(A_train(1:n_train,:),order,polynomial);
 training_out = b_train(1:n_train,:);
 
@@ -42,7 +42,7 @@ test_err = zeros(n_b,1);
 n_iterations = zeros(n_b,1);
 
 for i = 1:n_b
-    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,4,1e-4,2000,test_samples,test_out(:,i),0.01);
+    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,4,1e-4,2000,test_samples,test_out(:,i),0.1);
     [training_err(i) test_err(i) n_iterations(i)] 
     PC_coefficients{i} = x;
 end
