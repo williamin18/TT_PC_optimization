@@ -42,7 +42,7 @@ test_err = zeros(n_b,1);
 n_iterations = zeros(n_b,1);
 
 for i = 1:n_b
-    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,3,1e-4,2000,test_samples,test_out(:,i),0.01);
+    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,4,1e-4,2000,test_samples,test_out(:,i),0.01);
     [training_err(i) test_err(i) n_iterations(i)] 
     PC_coefficients{i} = x;
 end
