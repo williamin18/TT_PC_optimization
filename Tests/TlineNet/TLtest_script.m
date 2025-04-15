@@ -12,6 +12,10 @@ N = (m+1)*ones(d,1);
 r = 3;
 x = TTrand(N,r);
 
+x{1}(1) = vouts_train(1,1);
+for i = 1:d
+    x{i}(1)=1;
+end
 
 vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-ALS',0.3);
 norm(vouts_TT-vouts)/norm(vouts)
