@@ -13,5 +13,5 @@ r = 3;
 x = TTrand(N,r);
 
 
-vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3);
+vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-ALS',0.3);
 norm(vouts_TT-vouts)/norm(vouts)
