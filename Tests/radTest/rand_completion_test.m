@@ -32,4 +32,5 @@ x_test_sample =  multi_r1_times_TT(A_test,X_true);
 x = TTrand(N,r);
 
 
-TT_Riemannian_completion(A,x_samples,x,r,1e-4,2000,A_test,x_test_sample,0)
+x = TT_Riemannian_completion(A,x_samples,x,r,1e-4,2000,A_test,x_test_sample,0);
+TTnorm(TTaxby(1,x,-1,X_true))/TTnorm(X_true)

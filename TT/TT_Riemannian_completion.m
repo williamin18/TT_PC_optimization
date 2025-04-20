@@ -19,10 +19,10 @@ err_old = 100;
 
 for epoch = 1:max_epoches
 
-    [V,dUx] = TT_Riemannian_completion_Gradient(A,x,r,beta,dx_TT,lambda);
+    [V,dUx,dx_TT] = TT_Riemannian_completion_Gradient(A,x,r,beta,dx_TT,lambda);
 
     %compute Momentum
-    dx_TT = TT_Riemannian_fromGTensor(x,V,dUx);
+    
 
     x = TT_Riemannian_update(x,V,dUx,1,rank);
     
@@ -42,15 +42,15 @@ for epoch = 1:max_epoches
         break
     end
 
-    if   err_old-training_err < tol/10
-        break_counter = break_counter+1;
-        if break_counter > break_limit
-            break
-        end
-    else
-        break_counter = 0;
-    end
-    err_old = training_err;
+    % if   err_old-training_err < tol/10
+    %     break_counter = break_counter+1;
+    %     if break_counter > break_limit
+    %         break
+    %     end
+    % else
+    %     break_counter = 0;
+    % end
+    % err_old = training_err;
 end
 end
 
