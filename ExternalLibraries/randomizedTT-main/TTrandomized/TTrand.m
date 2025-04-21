@@ -20,6 +20,6 @@ assert(R(1) == 1 && R(N+1) == 1, "Boundary TT ranks must be 1");
 X = cell(N, 1);
 for n = 1 : N
     X{n} = randn(I(n) * R(n), R(n + 1));
-    s = sqrt(R(n)*R(n+1));             % variance normalization
-    X{n} = X{n}/s;
+    %s = sqrt(R(n)*R(n+1));             % variance normalization
+    X{n} = X{n};
 end
