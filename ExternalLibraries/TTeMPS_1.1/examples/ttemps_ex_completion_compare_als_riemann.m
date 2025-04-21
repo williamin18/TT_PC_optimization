@@ -35,7 +35,7 @@ for j = 1:1
     n = nn*ones(1,d);
 
     opts = struct('maxiter', 50, 'tol', 0, 'reltol',0, 'gradtol',0);
-    opts_tt = struct('maxiter', 60, 'tol', 0, 'reltol',0, 'gradtol',0,'cg',0);
+    opts_tt = struct('maxiter', 100, 'tol', 0, 'reltol',0, 'gradtol',0);
     
     dof = d*nn*r^2;
     sizeOmega = 10*dof;
@@ -54,8 +54,8 @@ for j = 1:1
     X0 = TTeMPS_rand( rr, n );
     X0 = 1/norm(X0) * X0;
     X0 = orthogonalize( X0, X0.order );
-
-    %[X,cost_als{j},test_als{j},stats_als{j}] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X0, opts );
+    % load('TT_riemannian_samples.mat');
+    [X,cost_als{j},test_als{j},stats_als{j}] = completion_als( A_Omega, Omega, A_Gamma, Gamma, X0, opts );
     [X,cost_tt{j},test_tt{j},stats_tt{j}] = completion_orth( A_Omega, Omega, A_Gamma, Gamma, X0, opts_tt );
 end
 

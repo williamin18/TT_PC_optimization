@@ -17,7 +17,7 @@ function x = TTeMPS_rand(r, n)
 
     U = cell(1, length(n));
     for i = 1:length(n)
-        U{i} = rand(r(i), n(i), r(i+1));
+        U{i} = randn(r(i), n(i), r(i+1));
     end
     x = TTeMPS(U);
 end
