@@ -1,6 +1,6 @@
 function [y] = genLegendre(xi,order)
 %GENHERMITE Summary of this function goes here
-%   Detailed explanation goes here
+%High order polynomials not tested, might has typos
 switch order
     case 0
         y = ones(size(xi));
