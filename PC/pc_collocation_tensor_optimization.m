@@ -1,29 +1,27 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_optimization(A_train,b_train,x,A_predict,order,polynomial,method,...
-    left_preconditioning_parameter)
+    pc_collocation_tensor_optimization(sample_indices,b_train,x,A_predict,order,polynomial,method)
 %PC_COLLOCATION_TENSOR Summary of this function goes here
 %   Detailed explanation goes here
 switch method
-    case "TT-ALS"
-        f = @TT_ALS;
-    case "TT-Newton"
-        f = @TT_Newton_GD;
+    case "TT-Riemannian"
+        f = @TT_Riemannian_completion;
     otherwise
         err('Unsupported optimization type')
 end
     
-lambda1 = left_preconditioning_parameter;
 
 
-[n_samples,d] = size(A_train);
-n_train = round(0.5*n_samples);
-training_samples = genPolynomialSamplesTensor(A_train(1:n_train,:),order,polynomial);
-training_out = b_train(1:n_train,:);
+[n_samples,d] = size(sample_indices);
 
-test_samples = genPolynomialSamplesTensor(A_train(n_train+1:end,:),order,polynomial);
-test_out =  b_train(n_train+1:end,:);
 
-predict_samples = genPolynomialSamplesTensor(A_predict,order,polynomial);
+
+n_train = round(0.9*n_samples);
+training_indices = sample_indices(1:n_train,:);
+training_samples = b_train(1:n_train,:);
+test_indices = sample_indices(n_train+1:end,:);
+test_samples = b_train(n_train+1:end,:);
+
+
 
 [~,n_b] = size(b_train);
 %preconditioning

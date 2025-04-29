@@ -2,7 +2,7 @@ n = 4;
 d = 10;
 N = n*ones(d,1);
 r = 3;
-n_samples = 3600;
+n_samples = 2000;
 n_test_samples = 100;
 
 
@@ -36,9 +36,9 @@ x{d} = x{d}/norm( x{d},'fro');
 
 
 % comparsion_samples = load('Completion_comparsion_samples.mat');
-A = comparsion_samples.A;
-A_test = comparsion_samples.A_test;
-x_true = comparsion_samples.x_true;
+% A = comparsion_samples.A;
+% A_test = comparsion_samples.A_test;
+% x_true = comparsion_samples.x_true;
 % x = comparsion_samples.x;
 
 
