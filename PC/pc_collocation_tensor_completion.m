@@ -1,15 +1,13 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_optimization(A_train,b_train,x,A_predict,order,polynomial,method,...
+    pc_collocation_tensor_completion(A_train,b_train,x,A_predict,order,polynomial,method,...
     left_preconditioning_parameter)
 %PC_COLLOCATION_TENSOR Summary of this function goes here
 %   Detailed explanation goes here
 switch method
-    case "TT-ALS"
-        f = @TT_ALS;
-    case "TT-Newton"
-        f = @TT_Newton_GD;
+    case "TT-Riemannian"
+        f = @TT_Riemannian_completion;
     otherwise
-        err('Unsupported optimization type')
+        err('Unsupported method')
 end
     
 lambda1 = left_preconditioning_parameter;
