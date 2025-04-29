@@ -1,5 +1,4 @@
 function [r] = genPolynomialRoots(order,polynomial)
-%High order polynomials not tested, might has typos
 switch polynomial
     case "Hermite"
         switch order

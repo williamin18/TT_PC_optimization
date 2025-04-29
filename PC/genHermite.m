@@ -1,6 +1,5 @@
 function [y] = genHermite(xi,order)
 %GENHERMITE Summary of this function goes here
-%High order polynomials not tested, might has typos
 switch order
     case 0
         y = ones(size(xi));
