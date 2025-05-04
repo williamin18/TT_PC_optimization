@@ -32,15 +32,15 @@ for epoch = 1:max_epoches
     
     
 
-    training_err = norm(r)/norm(b)
+    training_err = norm(r)/norm(b);
     r_test = multi_r1_times_TT(A_test,x) - b_test;
-    test_err = norm(r_test)/norm(b_test)
+    test_err = norm(r_test)/norm(b_test);
 
     if test_err < tol
         break
     end
 
-    if   err_old-training_err < tol/10
+    if   err_old-training_err < tol/100
         break_counter = break_counter+1;
         if break_counter > break_limit
             break
