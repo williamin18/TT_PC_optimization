@@ -26,13 +26,13 @@ test_sample_selector = cell(d,1);
 for i = 1:d
     training_sample_selector{i} = zeros(order+1,n_train);
     idx = training_indices(:,i);
-    idx = idx + (order+1)*(0:n_train-1);
+    idx = idx + (order+1)*(0:n_train-1)';
     training_sample_selector{i}(idx) = 1;
     training_sample_selector{i} = training_sample_selector{i}';
 
     test_sample_selector{i} = zeros(order+1,n_samples-n_train);
     idx = test_indices(:,i);
-    idx = idx + (order+1)*(0:n_samples-n_train-1);
+    idx = idx + (order+1)*(0:n_samples-n_train-1)';
     test_sample_selector{i}(idx) = 1;
     test_sample_selector{i} = test_sample_selector{i}';
 end
