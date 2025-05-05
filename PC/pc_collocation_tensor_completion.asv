@@ -34,7 +34,7 @@ for i = 1:d
     idx = test_indices(:,i);
     idx = idx + (order+1)*(0:n_samples-n_train-1);
     test_sample_selector{i}(idx) = 1;
-    test_sample_selector{i} = test_sample_selector{i}';
+    test_sample_selector{i} = training_sample_selector{i}';
 end
 
 %% TT outs estimation
