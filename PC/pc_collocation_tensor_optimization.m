@@ -1,7 +1,7 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_optimization(A_train,b_train,x,A_predict,order,polynomial,method,...
+    pc_collocation_tensor_optimization(xi_train,b_train,x,xi_predict,order,polynomial,method,...
     left_preconditioning_parameter)
-%x is PC coefficients, A is polynomial samples, b is sample outputs
+%x is PC coefficients, xi is samples inputs, b is sample outputs
 switch method
     case "TT-ALS"
         f = @TT_ALS;
@@ -16,15 +16,15 @@ end
 lambda1 = left_preconditioning_parameter;
 lambda2 = 0.1;
 
-[n_samples,d] = size(A_train);
+[n_samples,d] = size(xi_train);
 n_train = round(0.5*n_samples);
-training_samples = genPolynomialSamplesTensor(A_train(1:n_train,:),order,polynomial);
+training_samples = genPolynomialSamplesTensor(xi_train(1:n_train,:),order,polynomial);
 training_out = b_train(1:n_train,:);
 
-test_samples = genPolynomialSamplesTensor(A_train(n_train+1:end,:),order,polynomial);
+test_samples = genPolynomialSamplesTensor(xi_train(n_train+1:end,:),order,polynomial);
 test_out =  b_train(n_train+1:end,:);
 
-predict_samples = genPolynomialSamplesTensor(A_predict,order,polynomial);
+predict_samples = genPolynomialSamplesTensor(xi_predict,order,polynomial);
 
 
 [~,n_b] = size(b_train);
@@ -51,7 +51,7 @@ end
 
 
 
-[n_predict_samples,~] = size(A_predict);
+[n_predict_samples,~] = size(xi_predict);
 b_predict = zeros(n_predict_samples,n_b);
 for i = 1:n_b
     b_predict(:,i) = multi_r1_times_TT(predict_samples,PC_coefficients{i});

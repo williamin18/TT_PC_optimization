@@ -1,7 +1,7 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_completion(sample_indices,b_train,y,A_predict,order,polynomial,method)
+    pc_collocation_tensor_completion(sample_indices,b_train,y,xi_predict,order,polynomial,method)
 %y is TT-estimation of outputs, b is sample outputs,sample_indices are indices of b,
-% A is polynomial samples(not used on training)
+% xi is polynomial samples(not used on training)
 switch method
     case "TT-Riemannian"
         f = @TT_Riemannian_completion;
@@ -35,15 +35,15 @@ test_sample_selector = cell(d,1);
 for i = 1:d
     training_sample_selector{i} = zeros(order+1,n_train);
     idx = training_indices(:,i);
-    idx = idx + (order+1)*(0:n_train-1);
+    idx = idx + (order+1)*(0:n_train-1)';
     training_sample_selector{i}(idx) = 1;
     training_sample_selector{i} = training_sample_selector{i}';
 
     test_sample_selector{i} = zeros(order+1,n_samples-n_train);
     idx = test_indices(:,i);
-    idx = idx + (order+1)*(0:n_samples-n_train-1);
+    idx = idx + (order+1)*(0:n_samples-n_train-1)';
     test_sample_selector{i}(idx) = 1;
-    test_sample_selector{i} = training_sample_selector{i}';
+    test_sample_selector{i} = test_sample_selector{i}';
 end
 
 %% TT outs estimation
@@ -82,8 +82,10 @@ for i = 1:n_b
 end
 
 %% predict outputs
-[n_predict_samples,~] = size(A_predict);
+predict_samples = genPolynomialSamplesTensor(xi_predict,order,polynomial);
+[n_predict_samples,~] = size(xi_predict);
 b_predict = zeros(n_predict_samples,n_b);
+
 for i = 1:n_b
     b_predict(:,i) = multi_r1_times_TT(predict_samples,PC_coefficients{i});
 end
