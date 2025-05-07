@@ -55,7 +55,7 @@ n_iterations = zeros(n_b,1);
 
 
 for i = 1:n_b
-    [y,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y,4,1e-4,2000,test_sample_selector,test_samples(:,i),0.1);
+    [y,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y,3,1e-4,2000,test_sample_selector,test_samples(:,i),0.1);
     [training_err(i) test_err(i) n_iterations(i)] 
     TT_outs{i} = y;
 end

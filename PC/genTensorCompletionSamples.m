@@ -1,4 +1,6 @@
 function [sample_idx,sample_xi,n_samples2] = genTensorCompletionSamples(m,d,n_samples,polynomial)
+%n_samples2 is usually the same as n_samples, only samller when there are
+%too many repeated samples
 
 switch polynomial
     case "Hermite"
