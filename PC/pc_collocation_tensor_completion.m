@@ -8,6 +8,15 @@ switch method
     otherwise
         err('Unsupported method')
 end
+
+switch polynomial
+    case "Hermite"
+        poly = @genHermite;
+    case "Legendre"
+        poly = @genLegendre;
+    otherwise
+        err('Unsupported polynomial')
+end
     
 
 %% initialization
@@ -56,7 +65,7 @@ PC_coefficients = cell(n_b,1);
 polynomial_roots =  genPolynomialRoots(order+1,polynomial);
 A_r1 = zeros(order+1,order+1);
 for i = 1:order+1
-    A_r1(:,i) = genHermite(polynomial_roots,i-1);
+    A_r1(:,i) = poly(polynomial_roots,i-1);
 end
 A_r1_inverse = A_r1^-1;
 for i = 1:n_b

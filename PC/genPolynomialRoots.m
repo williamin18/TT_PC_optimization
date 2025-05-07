@@ -38,6 +38,6 @@ switch polynomial
         err('Unsupported polynomial type')
 end
 
-r = roots(p);
+r = sort(roots(p));
 end
 
