@@ -7,8 +7,8 @@ out_data = load('Tests/Sallenkey/Sallenkey_8par.mat');
 out_samples = out_data.samples;
 out_true = out_data.vouts;
 
-out_samples = abs(out_samples);
-vouts_train = abs(vouts_train);
+% out_samples = abs(out_samples);
+% vouts_train = abs(vouts_train);
 
 [~,d] = size(sample_xi);
 m = 3;

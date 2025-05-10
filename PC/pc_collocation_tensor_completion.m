@@ -18,7 +18,7 @@ switch polynomial
         err('Unsupported polynomial')
 end
     
-
+lambda = 0.01;
 %% initialization
 [n_samples,d] = size(sample_indices);
 
@@ -55,7 +55,7 @@ n_iterations = zeros(n_b,1);
 
 
 for i = 1:n_b
-    [y,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y,3,1e-4,2000,test_sample_selector,test_samples(:,i),0.1);
+    [y,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y,1,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
     [training_err(i) test_err(i) n_iterations(i)] 
     TT_outs{i} = y;
 end
@@ -70,7 +70,7 @@ end
 A_r1_inverse = A_r1^-1;
 for i = 1:n_b
     PC_coefficients{i} = TT_outs{i};
-    [~,m,r] = TTsizes(x);
+    [~,m,r] = TTsizes(PC_coefficients{i});
     for j = 1:d
         Wj = PC_coefficients{i}{j};
         Wj = reshape(Wj,[r(j),m(j),r(j+1)]);
