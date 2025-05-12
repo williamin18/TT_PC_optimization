@@ -30,12 +30,12 @@ for i = 1:d
     end
      
 end
-for i = 1:d-1
-    dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
-%      L = U{i}'*dUx{i};
-%     dUx{i} = dUx{i} - U{i}*L;
-%     dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
-end
+% for i = 1:d-1
+%     dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
+% %      L = U{i}'*dUx{i};
+% %     dUx{i} = dUx{i} - U{i}*L;
+% %     dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
+% end
 
 if beta>0
     dU_old = TT_Riemannian_projection(U,V,dx_old);

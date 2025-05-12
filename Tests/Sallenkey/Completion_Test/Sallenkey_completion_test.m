@@ -26,8 +26,6 @@ for i = 1:n_outs
     y_init{i} = formRank1Tensor(r1_sample_idx,vouts_r1(:,i),m,d);
 end
 
-y = TTrand(N,r);
-y{d} = y{d}/norm(y{d},'fro');
 
 [vouts_predicted,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_completion(sample_idx,vouts_train,y,out_samples,m,'Hermite','TT-Riemannian');
+    pc_collocation_tensor_completion(sample_idx,vouts_train,y_init,out_samples,m,'Hermite','TT-Riemannian');

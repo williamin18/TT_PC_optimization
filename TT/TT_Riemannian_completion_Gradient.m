@@ -28,6 +28,7 @@ for i = 1:d
         temp = yr{i}.*repelem(temp,1,r(i+1));
         dUx{i}((j-1)*r(i)+1:j*r(i),:) = (yl{i}'*temp);
     end
+    dUx{i} = dUx{i} - lambda*(Ux{i} +pinv(Ux{i}).');
 end
 for i = 1:d-1
     dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};

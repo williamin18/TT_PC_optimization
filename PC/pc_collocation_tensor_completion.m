@@ -1,5 +1,5 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_completion(sample_indices,b_train,y,xi_predict,order,polynomial,method)
+    pc_collocation_tensor_completion(sample_indices,b_train,y_init,xi_predict,order,polynomial,method)
 %y is TT-estimation of outputs, b is sample outputs,sample_indices are indices of b,
 % xi is polynomial samples(not used on training)
 switch method
@@ -18,7 +18,8 @@ switch polynomial
         err('Unsupported polynomial')
 end
     
-lambda = 0.01;
+lambda = 0.0001;
+max_rank = 3;
 %% initialization
 [n_samples,d] = size(sample_indices);
 
@@ -55,9 +56,7 @@ n_iterations = zeros(n_b,1);
 
 
 for i = 1:n_b
-    [y,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y,1,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
-    [training_err(i) test_err(i) n_iterations(i)] 
-    TT_outs{i} = y;
+    [TT_outs{i},training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y_init{i},max_rank,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
 end
 
 %% compute PC coefficients

@@ -19,7 +19,7 @@ err_old = 100;
 
 for epoch = 1:max_epoches
 
-    [V,dUx,dx_TT] = TT_Riemannian_completion_Gradient(A,x,r,beta,dx_TT,lambda);
+    [V,dUx,dx_TT] = TT_Riemannian_completion_Gradient2(A,x,r,beta,dx_TT,lambda);
 
     %compute Momentum
     

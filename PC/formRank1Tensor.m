@@ -7,7 +7,10 @@ ref_out = r1_samples(1);
 counter = 2;
 for i = 1:d
     temp = r1_samples(counter:(counter+m-1));
-    y{i} = [temp(1:(ref_points(i)-1)); ref_out ;temp(ref_points(i):m)]/ref_out;
+    y{i} = [temp(1:(ref_points(i)-1)); ref_out ;temp(ref_points(i):m)];
+end
+for i = 1:d-1
+    y{i} = y{i}/ref_out;
 end
 y = TTorthogonalizeLR(y);
 end
