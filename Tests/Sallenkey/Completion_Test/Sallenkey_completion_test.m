@@ -7,13 +7,25 @@ out_data = load('Tests/Sallenkey/Sallenkey_8par.mat');
 out_samples = out_data.samples;
 out_true = out_data.vouts;
 
+load('Tests/Sallenkey/Completion_Test/r1_samples.mat');
 % out_samples = abs(out_samples);
 % vouts_train = abs(vouts_train);
 
+
+
+
+
 [~,d] = size(sample_xi);
+[n_samples,n_outs] = size(vouts_train);
 m = 3;
 N = (m+1)*ones(d,1);
 r = 3;
+
+y_init = cell(n_outs,1);
+for i = 1:n_outs
+    y_init{i} = formRank1Tensor(r1_sample_idx,vouts_r1(:,i),m,d);
+end
+
 y = TTrand(N,r);
 y{d} = y{d}/norm(y{d},'fro');
 
