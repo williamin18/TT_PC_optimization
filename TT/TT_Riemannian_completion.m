@@ -34,9 +34,9 @@ for epoch = 1:max_epoches
     
     
 
-    training_err = norm(r)/norm(x_samples)
+    training_err = norm(r)/norm(x_samples);
     r_test = multi_r1_times_TT(A_test,x) - b_test;
-    test_err = norm(r_test)/norm(b_test)
+    test_err = norm(r_test)/norm(b_test);
 
     if test_err < tol
         break

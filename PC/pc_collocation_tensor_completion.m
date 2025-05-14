@@ -18,7 +18,7 @@ switch polynomial
         err('Unsupported polynomial')
 end
     
-lambda = 0.0001;
+lambda = 0.001;
 max_rank = 3;
 %% initialization
 [n_samples,d] = size(sample_indices);
@@ -54,9 +54,12 @@ training_err = zeros(n_b,1);
 test_err = zeros(n_b,1);
 n_iterations = zeros(n_b,1);
 
-
+yi = y_init{1};
 for i = 1:n_b
-    [TT_outs{i},training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y_init{i},max_rank,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
+    % [yi,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),yi,max_rank,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
+    [yi,training_err(i),test_err(i),n_iterations(i)] = f(training_sample_selector,training_samples(:,i),y_init{i},max_rank,1e-2,200,test_sample_selector,test_samples(:,i),lambda);
+    [training_err(i),test_err(i),n_iterations(i)]
+    TT_outs{i} = yi;
 end
 
 %% compute PC coefficients

@@ -15,6 +15,7 @@ load('Tests/Sallenkey/Completion_Test/r1_samples.mat');
 
 
 
+
 [~,d] = size(sample_xi);
 [n_samples,n_outs] = size(vouts_train);
 m = 3;
@@ -28,4 +29,4 @@ end
 
 
 [vouts_predicted,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_completion(sample_idx,vouts_train,y_init,out_samples,m,'Hermite','TT-Riemannian');
+    pc_collocation_tensor_completion(sample_idx,vouts_train(:,1),y_init(1),out_samples,m,'Hermite','TT-Riemannian');
