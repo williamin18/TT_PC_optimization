@@ -23,7 +23,7 @@ r = 3;
 
 y_init = cell(n_outs,1);
 for i = 1:n_outs
-    y_init{i} = formRank1Tensor(r1_sample_idx,vouts_r1(:,i),m,d);
+    y_init{i} = formRank1Tensor(vout_ref(i),vouts_r1(:,i),m,d);
 end
 
 
