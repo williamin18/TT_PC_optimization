@@ -25,13 +25,6 @@ dUx = cell(d,1);
 for i = 1:d
     dUx{i} = TTcore_Newton(yl{i},yr{i},A{i},Ux{i},residual,lambda);
 end
-if beta>0
-    dU_old = TT_Riemannian_projection(U,V,dx_old);
-    for i = 1:d
-        dUx{i}  = dUx{i} + beta*dU_old{i};
-    end
-end
-
 
 Adx = zeros(n_samples,d);
 for i = 1:d
@@ -47,11 +40,34 @@ for i = 1:d
     Adx(:,i) = sum(Adxi.*yr{i},2);
 end
 
-alpha = Adx\residual;
-%alpha = lsqnonneg(Adx,residual);
 
-for i = 1:d
-    dUx{i} = alpha(i)*dUx{i};
+if beta <= 0
+    alpha = Adx\residual;
+    for i = 1:d
+        dUx{i} = alpha(i)*dUx{i};
+    end
+else
+    dU_old = TT_Riemannian_projection(U,V,dx_old);
+    Adx_old = zeros(n_samples,d);
+
+    for i = 1:d
+        dUi = reshape(dU_old{i},[r(i), m(i), r(i+1)]);
+        dUi = reshape(permute(dUi, [2 1 3]),m(i),[]);
+        AdU = A{i}*dUi;
+        AdU = reshape(AdU,n_samples,r(i),r(i+1));
+
+        Adxi = zeros(n_samples,r(i+1));
+        for j = 1:r(i+1)
+            Adxi(:,j) = sum(yl{i}.*AdU(:,:,j),2);
+        end
+        Adx_old(:,i) = sum(Adxi.*yr{i},2);
+    end
+    Adx = [Adx Adx_old];
+    alpha = Adx\residual;
+    for i = 1:d
+        dUx{i} = alpha(i)*dUx{i}+alpha(i+d)*dU_old{i};
+    end
 end
+
 end
 

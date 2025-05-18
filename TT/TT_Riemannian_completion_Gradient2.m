@@ -30,19 +30,6 @@ for i = 1:d
     end
      
 end
-% for i = 1:d-1
-%     dUx{i} = dUx{i} - U{i}*U{i}'*dUx{i};
-% %      L = U{i}'*dUx{i};
-% %     dUx{i} = dUx{i} - U{i}*L;
-% %     dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
-% end
-
-if beta>0
-    dU_old = TT_Riemannian_projection(U,V,dx_old);
-    for i = 1:d
-        dUx{i}  = dUx{i} + beta*dU_old{i};
-    end
-end
 
 dx_TT = TT_Riemannian_fromGTensor(U,V,dUx);
 
@@ -61,12 +48,32 @@ for i = 1:d
     Adx(:,i) = sum(Adxi.*yr{i},2);
 end
 
-alpha = Adx\residual;
-%alpha = Adx\residual;
-%alpha = lsqnonneg(Adx,residual);
+if beta <=0
+    alpha = Adx\residual;
+    for i = 1:d
+        dUx{i} = alpha(i)*dUx{i};
+    end
+else
+    dU_old = TT_Riemannian_projection(U,V,dx_old);
 
-for i = 1:d
-    dUx{i} = alpha(i)*dUx{i};
+    for i = 1:d
+        dUi = reshape(dU_old{i},[r(i), m(i), r(i+1)]);
+        dUi = reshape(permute(dUi, [2 1 3]),m(i),[]);
+        AdU = A{i}*dUi;
+        AdU = reshape(AdU,n_samples,r(i),r(i+1));
+
+        Adxi = zeros(n_samples,r(i+1));
+        for j = 1:r(i+1)
+            Adxi(:,j) = sum(yl{i}.*AdU(:,:,j),2);
+        end
+        Adx_old(:,i) = sum(Adxi.*yr{i},2);
+    end
+    Adx = [Adx Adx_old];
+    alpha = Adx\residual;
+    for i = 1:d
+        dUx{i} = alpha(i)*dUx{i}+alpha(i+d)*dU_old{i};
+    end
+
 end
 end
 

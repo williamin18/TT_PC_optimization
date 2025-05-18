@@ -26,17 +26,17 @@ for epoch = 1:max_epoches
 
     x = TT_Riemannian_update(x,V,dUx,1,rank);
     
-    r_old = r;
+    % r_old = r;
     r = x_samples - multi_r1_times_TT(A,x);
-    beta = 0;
+    beta = 1;
     % beta = (r_old'*r_old)/(r'*r);
 
     
     
 
-    training_err = norm(r)/norm(x_samples);
+    training_err = norm(r)/norm(x_samples)
     r_test = multi_r1_times_TT(A_test,x) - b_test;
-    test_err = norm(r_test)/norm(b_test);
+    test_err = norm(r_test)/norm(b_test)
 
     if test_err < tol
         break
