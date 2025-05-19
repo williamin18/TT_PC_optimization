@@ -16,8 +16,12 @@ Y = Y_yl.*Y_Ai.*Y_yr;
 
 n = r_k*m*r_k1;
 %regularization
-Y = [Y;lambda*eye(n)];
-residual = [residual; -lambda*reshape(Xk,[],1)];
+if lambda ~= 0
+    Y = [Y;lambda*eye(n)];
+    residual = [residual; -lambda*reshape(Xk,[],1)];
+    % residual = [residual; zeros(n,1)];
+end
+
 
 dXk =  Y\residual;
 dXk = reshape(dXk,[r_k*m, r_k1]);

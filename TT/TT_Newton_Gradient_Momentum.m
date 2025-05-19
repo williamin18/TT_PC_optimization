@@ -42,6 +42,10 @@ end
 
 
 if beta <= 0
+    % Adx2 = [Adx; lambda*Adx];
+    % r2 = [residual; lambda*multi_r1_times_TT(A,U)];
+    % alpha = Adx2\r2;
+
     alpha = Adx\residual;
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i};
@@ -63,7 +67,11 @@ else
         Adx_old(:,i) = sum(Adxi.*yr{i},2);
     end
     Adx = [Adx Adx_old];
-    alpha = Adx\residual;
+
+    Adx2 = [Adx; lambda*Adx];
+    r2 = [residual; lambda*multi_r1_times_TT(A,U)];
+    alpha = Adx2\r2;
+    % alpha = Adx\residual;
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i}+alpha(i+d)*dU_old{i};
     end

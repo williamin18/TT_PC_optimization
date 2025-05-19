@@ -26,7 +26,7 @@ for epoch = 1:max_epoches
     
     % r_old = r;
     r = b - multi_r1_times_TT(A,x);
-    beta = 1;
+    beta = 0;
     % beta = (r_old'*r_old)/(r'*r);
 
     

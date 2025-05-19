@@ -1,6 +1,6 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
     pc_collocation_tensor_optimization(xi_train,b_train,x,xi_predict,order,polynomial,method,...
-    left_preconditioning_parameter)
+    left_preconditioning_parameter,regularization_parameter)
 %x is PC coefficients, xi is samples inputs, b is sample outputs
 switch method
     case "TT-ALS"
@@ -14,7 +14,7 @@ end
 
 
 lambda1 = left_preconditioning_parameter;
-lambda2 = 0.1;
+lambda2 = regularization_parameter;
 
 [n_samples,d] = size(xi_train);
 n_train = round(0.5*n_samples);
