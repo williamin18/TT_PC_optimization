@@ -28,5 +28,11 @@ for i = 1:n_outs
 end
 
 
+% [vouts_predicted,PC_coefficients,training_err,test_err] = ...
+%     pc_collocation_tensor_completion(sample_idx,vouts_train(:,1),y_init(1),out_samples,m,'Hermite','TT-Riemannian');
+
+tic
 [vouts_predicted,PC_coefficients,training_err,test_err] = ...
-    pc_collocation_tensor_completion(sample_idx,vouts_train(:,1),y_init(1),out_samples,m,'Hermite','TT-Riemannian');
+    pc_collocation_tensor_completion(sample_idx,vouts_train,y_init,out_samples,m,'Hermite','TT-Riemannian');
+toc
+norm(vouts_predicted-out_true)/norm(out_true)

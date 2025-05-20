@@ -76,9 +76,10 @@ for i = 1:n_b
     for j = 1:d
         Wj = PC_coefficients{i}{j};
         Wj = reshape(Wj,[r(j),m(j),r(j+1)]);
-        Wj = reshape(permute(Wj, [2 1 3]),m(i),[]);
+        Wj = reshape(permute(Wj, [2 1 3]),m(j),[]);
         Wj = A_r1_inverse*Wj;
-        Wj = permute(reshape(Wj,m(i),r(i),r(i+1)),[2 1 3]);
+        Wj = permute(reshape(Wj,m(j),r(j),r(j+1)),[2 1 3]);
+        Wj = reshape(Wj,m(j)*r(j),[]);
         PC_coefficients{i}{j} = Wj;
     end
 end
