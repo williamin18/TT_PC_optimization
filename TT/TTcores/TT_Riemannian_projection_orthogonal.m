@@ -24,7 +24,7 @@ end
 Ux = cell(d,1);
 for i = 1:d-1
     Ux{i} =  h2v( Y_l{i}* v2h(x{i},m(i)) , m(i))* (Y_r{i});
-    Ux{i} =  Ux{i} - U{i}*U{i}'*Ux{i};
+    % Ux{i} =  Ux{i} - U{i}*U{i}'*Ux{i};
 end
 
 Ux{d} =  h2v( Y_l{d}* v2h(x{d},m(d)) , m(d));

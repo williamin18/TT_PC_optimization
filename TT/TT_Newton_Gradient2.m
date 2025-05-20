@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Newton_Gradient_Momentum(A,U,residual,beta,dx_old,lambda)
+function [V,dUx] = TT_Newton_Gradient2(A,U,residual,beta,dx_old,lambda)
 %TT_NEWTON_GRADIENT Summary of this function goes here
 %   Detailed explanation goes here
 [n_samples,~] = size(A{1});
@@ -50,16 +50,17 @@ end
 
 
 if beta <= 0
-    % Adx2 = [Adx; lambda*Adx];
-    % r2 = [residual; lambda*multi_r1_times_TT(A,U)];
-    % alpha = Adx2\r2;
-
+    reg_matrix = zeros(d,d);
+    for i = 1:d
+        reg_matrix(i,i) = lambda*norm(dUx{i},'fro');
+    end
+    Adx = [Adx; reg_matrix];
     alpha = Adx\residual;
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i};
     end
 else
-    dU_old = TT_Riemannian_projection(U,V,dx_old);
+    dU_old = TT_Riemannian_projection_orthogonal(U,V,dx_old);
     Adx_old = zeros(n_samples,d);
 
     for i = 1:d
@@ -75,10 +76,13 @@ else
         Adx_old(:,i) = sum(Adxi.*yr{i},2);
     end
     Adx = [Adx Adx_old];
+    reg_matrix = zeros(d*2,d*2);
+    for i = 1:d
+        reg_matrix(i,i) = (lambda*norm(dUx{i},'fro'))^2;
+        reg_matrix(i+d,i) = (lambda*norm(dU_old{i},'fro'))^2;
+    end
+    Adx = [Adx; reg_matrix];
 
-    % Adx2 = [Adx; lambda*Adx];
-    % r2 = [residual; lambda*multi_r1_times_TT(A,U)];
-    % alpha = Adx2\r2;
     alpha = Adx\residual;
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i}+alpha(i+d)*dU_old{i};
