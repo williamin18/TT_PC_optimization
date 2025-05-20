@@ -27,11 +27,11 @@ for i = 1:d
     dUx{i} = TTcore_Newton(yl{i},yr{i},A{i},Ux{i},residual,lambda);
 end
 
-% for i = 1:d-1
-%     L = U{i}'*dUx{i};
-%     dUx{i} = dUx{i} - U{i}*L;
-%     % dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
-% end
+for i = 1:d-1
+    L = U{i}'*dUx{i};
+    dUx{i} = dUx{i} - U{i}*L;
+    % dUx{i+1} = dUx{i+1} + h2v(L*v2h(V{i+1},m(i+1)),m(i+1));
+end
 
 Adx = zeros(n_samples,d);
 
