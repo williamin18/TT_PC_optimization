@@ -17,7 +17,7 @@ err_old = 100;
 
 for epoch = 1:max_epoches
 
-    [V,dUx] = TT_Newton_Gradient_Momentum(A,x,r,beta,dx_TT,lambda);
+    [V,dUx] = TT_Newton_Gradient2(A,x,r,beta,dx_TT,lambda);
 
     %compute Momentum
     dx_TT = TT_Riemannian_fromGTensor(x,V,dUx);
@@ -26,21 +26,21 @@ for epoch = 1:max_epoches
     
     % r_old = r;
     r = b - multi_r1_times_TT(A,x);
-    beta = 0;
+    beta = 1;
     % beta = (r_old'*r_old)/(r'*r);
 
     
     
 
-    training_err = norm(r)/norm(b)
+    training_err = norm(r)/norm(b);
     r_test = multi_r1_times_TT(A_test,x) - b_test;
-    test_err = norm(r_test)/norm(b_test)
+    test_err = norm(r_test)/norm(b_test);
 
     if test_err < tol
         break
     end
 
-    if   err_old-training_err < tol/100
+    if   err_old-training_err < tol/10
         break_counter = break_counter+1;
         if break_counter > break_limit
             break

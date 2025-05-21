@@ -1,4 +1,4 @@
-function [V,dUx] = TT_Newton_Gradient_Momentum(A,U,residual,beta,dx_old,lambda)
+function [V,dUx] = TT_Newton_Gradient(A,U,residual,beta,dx_old,lambda)
 %TT_NEWTON_GRADIENT Summary of this function goes here
 %   Detailed explanation goes here
 [n_samples,~] = size(A{1});

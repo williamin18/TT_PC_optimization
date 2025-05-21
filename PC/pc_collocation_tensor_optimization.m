@@ -1,6 +1,6 @@
 function [b_predict,PC_coefficients,training_err,test_err] = ...
     pc_collocation_tensor_optimization(xi_train,b_train,x,xi_predict,order,polynomial,method,...
-    left_preconditioning_parameter,regularization_parameter)
+    left_preconditioning_parameter,regularization_parameter,r_max)
 %x is PC coefficients, xi is samples inputs, b is sample outputs
 switch method
     case "TT-ALS"
@@ -17,7 +17,7 @@ lambda1 = left_preconditioning_parameter;
 lambda2 = regularization_parameter;
 
 [n_samples,d] = size(xi_train);
-n_train = round(0.5*n_samples);
+n_train = round(0.6*n_samples);
 training_samples = genPolynomialSamplesTensor(xi_train(1:n_train,:),order,polynomial);
 training_out = b_train(1:n_train,:);
 
@@ -44,7 +44,7 @@ test_err = zeros(n_b,1);
 n_iterations = zeros(n_b,1);
 
 for i = 1:n_b
-    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,3,1e-4,2000,test_samples,test_out(:,i),lambda2);
+    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,r_max,1e-4,2000,test_samples,test_out(:,i),lambda2);
     [training_err(i) test_err(i) n_iterations(i)] 
     PC_coefficients{i} = x;
 end

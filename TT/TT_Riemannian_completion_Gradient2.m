@@ -55,6 +55,7 @@ if beta <=0
     end
 else
     dU_old = TT_Riemannian_projection(U,V,dx_old);
+    Adx_old = zeros(n_samples,d);
 
     for i = 1:d
         dUi = reshape(dU_old{i},[r(i), m(i), r(i+1)]);
