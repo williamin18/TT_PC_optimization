@@ -50,11 +50,28 @@ end
 
 
 if beta <= 0
-    % Adx2 = [Adx; lambda*Adx];
-    % r2 = [residual; lambda*multi_r1_times_TT(A,U)];
-    % alpha = Adx2\r2;
+    %regularization
+    reg_matrix = zeros(d,d);
+    for i = 1:d-1
+        reg_matrix(i,i) = norm(dUx{i},'fro')^2;
+        UdU = dUx{i}'*U{i};
+        for j =i+1:d-1
+            reg_matrix(i,j) = sum(conj(V{j}) .* h2v(UdU * v2h(dUx{j}, m(j)), m(j)),'all');
+            UdU = V{j}' * h2v(UdU * v2h(U{j}, m(j)), m(j));
+        end
+        reg_matrix(i,d) = sum(conj(V{d}) .* h2v(UdU * v2h(dUx{d}, m(d)), m(d)),'all');
+    end
+    reg_matrix(d,d) = norm(dUx{d},'fro')^2;
+    reg_matrix = lambda^2*reg_matrix;
+    reg_matrix = reg_matrix + triu(reg_matrix,1)';
 
-    alpha = Adx\residual;
+    reg_vec = zeros(d,1);
+    for i = 1:d
+        reg_vec(i) = -lambda^2*sum(conj(dUx{i}).* Ux{i},"all");
+    end
+    
+    alpha = (Adx'*Adx+reg_matrix)\(Adx'*residual+reg_vec);
+    
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i};
     end
@@ -76,10 +93,43 @@ else
     end
     Adx = [Adx Adx_old];
 
-    % Adx2 = [Adx; lambda*Adx];
-    % r2 = [residual; lambda*multi_r1_times_TT(A,U)];
-    % alpha = Adx2\r2;
-    alpha = Adx\residual;
+    %regularization
+    reg_matrix = zeros(d,d);
+    for i = 1:d-1
+        reg_matrix(i,i) = norm(dUx{i},'fro')^2;
+        reg_matrix(i+d,i+d) = norm(dU_old{i},'fro')^2;
+        reg_matrix(i,i+d) = sum(conj(dUx{i}).*dU_old{i},"all");
+        UdU1 = dUx{i}'*U{i};
+        UdU2 = dU_old{i}'*U{i};
+        for j =i+1:d-1
+            reg_matrix(i,j) = sum(conj(V{j}) .* h2v(UdU1 * v2h(dUx{j}, m(j)), m(j)),'all');
+            reg_matrix(i+d,j+d) = sum(conj(V{j}) .* h2v(UdU2 * v2h(dU_old{j}, m(j)), m(j)),'all');
+            reg_matrix(i,j+d) = sum(conj(V{j}) .* h2v(UdU1 * v2h(dU_old{j}, m(j)), m(j)),'all');
+            reg_matrix(j,i+d) = conj(sum(conj(V{j}) .* h2v(UdU2 * v2h(dUx{j}, m(j)), m(j)),'all'));
+
+            UdU1 = V{j}' * h2v(UdU1 * v2h(U{j}, m(j)), m(j));
+            UdU2 = V{j}' * h2v(UdU2 * v2h(U{j}, m(j)), m(j));
+        end
+        reg_matrix(i,d) = sum(conj(V{d}) .* h2v(UdU1 * v2h(dUx{d}, m(d)), m(d)),'all');
+        reg_matrix(i+d,2*d) = sum(conj(V{d}) .* h2v(UdU2 * v2h(dU_old{d}, m(d)), m(d)),'all');
+        reg_matrix(i,2*d) = sum(conj(V{d}) .* h2v(UdU1 * v2h(dU_old{d}, m(d)), m(d)),'all');
+        reg_matrix(d,i+d) = conj(sum(conj(V{d}) .* h2v(UdU2 * v2h(dUx{d}, m(d)), m(d)),'all'));
+    end
+    reg_matrix(d,d) = norm(dUx{d},'fro')^2;
+    reg_matrix(2*d,2*d) = norm(dU_old{d},'fro')^2;
+    reg_matrix(d,2*d) = sum(conj(dUx{d}).*dU_old{d},"all");
+
+    reg_matrix = lambda^2*reg_matrix;
+    reg_matrix = reg_matrix + triu(reg_matrix,1)';
+
+    reg_vec = zeros(d,1);
+    for i = 1:d
+        reg_vec(i) = -lambda^2*sum(conj(dUx{i}).* Ux{i},"all");
+        reg_vec(i+d) = -lambda^2*sum(conj(dU_old{i}).* Ux{i},"all");
+    end
+
+    
+    alpha = (Adx'*Adx+reg_matrix)\(Adx'*residual+reg_vec);
     for i = 1:d
         dUx{i} = alpha(i)*dUx{i}+alpha(i+d)*dU_old{i};
     end

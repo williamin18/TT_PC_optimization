@@ -17,7 +17,7 @@ err_old = 100;
 
 for epoch = 1:max_epoches
 
-    [V,dUx] = TT_Newton_Gradient2(A,x,r,beta,dx_TT,lambda);
+    [V,dUx] = TT_Newton_Gradient3(A,x,r,beta,dx_TT,lambda);
 
     %compute Momentum
     dx_TT = TT_Riemannian_fromGTensor(x,V,dUx);
