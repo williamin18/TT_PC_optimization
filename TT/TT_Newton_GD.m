@@ -36,11 +36,11 @@ for epoch = 1:max_epoches
     r_test = multi_r1_times_TT(A_test,x) - b_test;
     test_err = norm(r_test)/norm(b_test);
 
-    if test_err < tol
+    if test_err < tol || test_err/training_err>4
         break
     end
 
-    if   err_old-training_err < tol/10
+    if   err_old-training_err < tol/100
         break_counter = break_counter+1;
         if break_counter > break_limit
             break
