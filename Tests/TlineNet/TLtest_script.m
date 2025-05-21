@@ -13,12 +13,12 @@ r = 3;
 x = TTrand(N,r);
 x = TTorthogonalizeLR(x);
 x{d} = x{d}/norm( x{d},'fro');
-% x{1}(1) = vouts_train(1,1);
-% for i = 1:d
-%     x{i}(1)=1;
-% end
+x{1}(1) = vouts_train(1,1);
+for i = 1:d
+    x{i}(1)=1;
+end
 
 tic
-vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3,0.2,3);
+ [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3,0.2,3);
 toc
 norm(vouts_TT-vouts)/norm(vouts)
