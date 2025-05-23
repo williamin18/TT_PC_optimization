@@ -1,4 +1,4 @@
-function [x,training_err,test_err,epoch] = TT_SGD_linear(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda,batch_size)
+function [x,training_err,test_err,n_iterations] = TT_SGD_linear(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda,batch_size)
 
 % (A,x,b,preconidtioner,r_round,batch_size,n_epochs,err_max)
 d = length(A);
@@ -9,6 +9,10 @@ d = length(A);
 break_counter = 0;
 break_limit = 5;
 err_old = 100;
+beta = 0;
+batches = ceil(n_samples/batch_size);
+max_epoches = ceil(max_epoches/batches);
+n_iterations = 0;
 
 for epoch = 1:max_epoches
     new_order = randperm(n_samples);
@@ -33,21 +37,47 @@ for epoch = 1:max_epoches
         % b_j = preconditioner*b_j;
 
         r =  b_j - multi_r1_times_TT(A_j,x);
-
         df = multi_r1_times_vec_to_TT(A_j,r);
+        df = TTaxby(1,df,-lambda,x);
+
+
         Adf = multi_r1_times_TT(A_j,df);
         step_size = (Adf'*r)/(Adf'*Adf);
         x = TTaxby(1,x,step_size,df);
-        x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,n_d-1) 1]);
+        x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
 
+        % if beta <= 0 
+        %     Adf = multi_r1_times_TT(A_j,df);
+        %     step_size = (Adf'*r-lambda^2*TTdot(df,x))/((Adf'*Adf)+lambda^2*TTnorm(df)^2);
+        %     x = TTaxby(1,x,step_size,df);
+        %     x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
+        %     g = TTrounding_Randomize_then_Orthogonalize(df,[1 r_round*ones(1,d-1) 1]);
+        %     beta = 1;
+        % else
+        %     Adf = multi_r1_times_TT(A_j,df);
+        %     Ag_old = multi_r1_times_TT(A_j,g);
+        %     Ag2 = [Adf Ag_old];
+        %     AtA = Ag2'*Ag2;
+        %     reg_matrix = zeros(2,2);
+        %     reg_matrix(1,1) = TTdot(df,df);
+        %     reg_matrix(2,2) = TTdot(g,g);
+        %     reg_matrix(1,2) = TTdot(df,g);
+        %     reg_matrix(2,1) = conj(reg_matrix(1,2));
+        %     AtA = AtA + lambda^2*reg_matrix;
+        %     step_sizes = AtA\(Ag2'*r-lambda^2*[TTdot(df,x);TTdot(g,x)]);
+        %     x = TTsum_Randomize_then_Orthogonalize({x,df,g}, [1;step_sizes], tol, r_round);
+        %     g = TTsum_Randomize_then_Orthogonalize({df,g}, step_sizes, tol, r_round);
+        % end
         training_err = norm(r)/norm(b);
         r_test = multi_r1_times_TT(A_test,x) - b_test;
         test_err = norm(r_test)/norm(b_test);
 
+
+        n_iterations = n_iterations+1;
         if test_err < tol 
             break
         end
-        if   err_old-training_err < tol/1000 || test_err/training_err>5
+        if   err_old-test_err < tol/100 
             break_counter = break_counter+1;
             if break_counter > break_limit
                 break
@@ -55,10 +85,12 @@ for epoch = 1:max_epoches
         else
             break_counter = 0;
         end
-        err_old = training_err;
+        err_old = test_err;
 
     end
-
+    if test_err < tol || break_counter > break_limit
+        break
+    end
 end
 end
 
