@@ -19,6 +19,6 @@ for i = 1:d
 end
 
 tic
- [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3,0.2,3);
+ [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3,0.2,3,10);
 toc
 norm(vouts_TT-vouts)/norm(vouts)

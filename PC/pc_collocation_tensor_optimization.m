@@ -1,12 +1,19 @@
 function [b_predict,PC_coefficients,training_err,test_err,n_iterations] = ...
     pc_collocation_tensor_optimization(xi_train,b_train,x,xi_predict,order,polynomial,method,...
-    left_preconditioning_parameter,regularization_parameter,r_max)
+    left_preconditioning_parameter,regularization_parameter,r_max,varargin)
 %x is PC coefficients, xi is samples inputs, b is sample outputs
 switch method
     case "TT-ALS"
         f = @TT_ALS;
     case "TT-Newton"
         f = @TT_Newton_GD;
+    case "TT-SGD"
+        if isempty(varargin)
+            batch_size = 10;
+        else
+            batch_size = varargin{1};
+        end
+        f = @(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda)TT_SGD_linear(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda,batch_size);
     otherwise
         err('Unsupported optimization type')
 end

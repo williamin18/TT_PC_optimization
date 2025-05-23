@@ -10,7 +10,7 @@ break_counter = 0;
 break_limit = 5;
 err_old = 100;
 
-for epoch = 1:n_epochs
+for epoch = 1:max_epoches
     new_order = randperm(n_samples);
     for i = 1:d
         A{i} = A{i}(new_order,:);
@@ -35,16 +35,19 @@ for epoch = 1:n_epochs
         r =  b_j - multi_r1_times_TT(A_j,x);
 
         df = multi_r1_times_vec_to_TT(A_j,r);
-        step_size = TTnorm(df);
+        Adf = multi_r1_times_TT(A_j,df);
+        step_size = (Adf'*r)/(Adf'*Adf);
+        x = TTaxby(1,x,step_size,df);
+        x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,n_d-1) 1]);
 
         training_err = norm(r)/norm(b);
         r_test = multi_r1_times_TT(A_test,x) - b_test;
         test_err = norm(r_test)/norm(b_test);
 
-        if test_err < tol || test_err/training_err>5
+        if test_err < tol 
             break
         end
-        if   err_old-training_err < tol/1000
+        if   err_old-training_err < tol/1000 || test_err/training_err>5
             break_counter = break_counter+1;
             if break_counter > break_limit
                 break
@@ -54,17 +57,6 @@ for epoch = 1:n_epochs
         end
         err_old = training_err;
 
-
-
-
-        step_size = r'*r/TTdot(df,df);
-        %step_size = 1;
-        x = TTaxby(1,x,step_size,df);
-
-        % x = TTrounding(x,1e-4,r_round);
-        x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,n_d-1) 1]);
-
-        err = norm(r)/norm(b_j)
     end
 
 end
