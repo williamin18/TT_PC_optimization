@@ -13,11 +13,11 @@ r = 3;
 x = TTrand(N,r);
 x{d} = x{d}/norm(x{d},'fro');
 
-x = cell(d,1);
-for i = 1:d
-    x{i} = zeros(m+1,1);
-end
+% x = cell(d,1);
+% for i = 1:d
+%     x{i} = zeros(m+1,1);
+% end
 tic
-vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-SGD',0.3,0.2,3);
+vouts_TT = pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-ALS',0.3,0.2,3);
 toc
 norm(vouts_TT-vouts)/norm(vouts)
