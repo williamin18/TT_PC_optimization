@@ -1,4 +1,4 @@
-function [Ux] = TT_Riemannian_projection(U,V,x)
+function [Ux] = TT_Riemannian_projection_orthogonal(U,V,x)
 %Projection of TT tensors  {U2_1 U2_2 ... U2_k-1 X V2_k+1 ...
 %V2_d-1 V2_d} to TT tensors {U_1 U_2 ... U_k-1 Q_lk*X*Q_rk V_k+1 ... V_d-1
 %V_d} for every k
@@ -24,7 +24,7 @@ end
 Ux = cell(d,1);
 for i = 1:d-1
     Ux{i} =  h2v( Y_l{i}* v2h(x{i},m(i)) , m(i))* (Y_r{i});
-    % Ux{i} =  Ux{i} - U{i}*U{i}'*Ux{i};
+    Ux{i} =  Ux{i} - U{i}*U{i}'*Ux{i};
 end
 
 Ux{d} =  h2v( Y_l{d}* v2h(x{d},m(d)) , m(d));
