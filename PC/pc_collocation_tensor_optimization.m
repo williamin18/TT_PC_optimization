@@ -24,7 +24,7 @@ lambda1 = left_preconditioning_parameter;
 lambda2 = regularization_parameter;
 
 [n_samples,d] = size(xi_train);
-n_train = round(0.6*n_samples);
+n_train = round(0.9*n_samples);
 training_samples = genPolynomialSamplesTensor(xi_train(1:n_train,:),order,polynomial);
 training_out = b_train(1:n_train,:);
 
