@@ -1,26 +1,26 @@
 clear variables
-freq = linspace(0.5e9,14e9,41);
+freq = linspace(0.5e9,14e9,101);
 training_data = load('Tests/Filter/data_training.mat');
-mc_data = load('Tests/Filter/data_mc.mat');
-S11_train = (abs(training_data.S11));
+mc_data = load('Tests/Filter/data_training.mat');
+S11_train = (abs(training_data.S21));
 training_samples = (training_data.samples);
-S11_mc = (abs(mc_data.S11));
+S11_mc = (abs(mc_data.S21));
 mc_samples = (mc_data.samples);
 
 s = log(S11_train./(1-S11_train));
 s_mc = log(S11_mc./(1-S11_mc));
-pdf_freq_idx = 35;
+pdf_freq_idx = 80;
 f = figure(5);
-Hmc = histogram( 20*log10(S11_train(:,pdf_freq_idx)) ,50,'Normalization','pdf', 'DisplayStyle','bar', 'FaceColor',[0.7 0.7 0.7]);
+Hmc = histogram( s(:,pdf_freq_idx) ,50,'Normalization','pdf', 'DisplayStyle','bar', 'FaceColor',[0.7 0.7 0.7]);
 
 [n_samples,d] = size(training_samples);
-m = 5;
+m = 4;
 
 % vouts_total = pc_collocation_total(training_samples,vouts_train,samples,m ,'Hermite');
 % norm(vouts_total-vouts)/norm(vouts);
 
 N = (m+1)*ones(d,1);
-r = 3;
+r = 2;
 x = TTrand(N,r);
 x = TTorthogonalizeLR(x);
 x{d} = x{d}/norm( x{d},'fro');

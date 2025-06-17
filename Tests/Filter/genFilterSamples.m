@@ -14,12 +14,12 @@ L5  = 2.27e-3;
 Lstub1 = 3.45e-3;
 
 
-std_width = 25e-6;
-std_thickness = 10e-6;
-pstd_EpsilonR = 0.025;
+std_width = 10e-6;
+std_thickness = 0e-6;
+pstd_EpsilonR = 0.00;
 n_parameters = 28;
-freq = linspace(0.5e9,14e9,41);
-for loop_idx = 1:2
+freq = linspace(0.5e9,14e9,101);
+for loop_idx = 1:1
     if loop_idx == 1
         n_samples = 1000;
         xi = lhsnorm(zeros(n_parameters,1), eye(n_parameters), n_samples);
@@ -27,10 +27,10 @@ for loop_idx = 1:2
         n_samples = 1000;
         xi = randn(n_samples,n_parameters);
     end
-    S11 = zeros(n_samples,41);
-    S21 = zeros(n_samples,41);
-    S12 = zeros(n_samples,41);
-    S22 = zeros(n_samples,41);
+    S11 = zeros(n_samples,length(freq));
+    S21 = zeros(n_samples,length(freq));
+    S12 = zeros(n_samples,length(freq));
+    S22 = zeros(n_samples,length(freq));
 
     tic
     for sample_idx = 1:n_samples
