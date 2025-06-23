@@ -1,12 +1,15 @@
 clear variables
-freq = linspace(0.5e9,14e9,101);
+
+
 training_data = load('Tests/Filter/data_training.mat');
 training_samples = training_data.samples;
 [n_samples,~] = size(training_samples);
+freq = linspace(0.5e9,14e9,101);
 S21= ((training_data.S21));
 
 S21_abs = abs(S21);
 S21_dB = 20*log10(abs(S21));
+
 
 
 S21_sort = sort(S21_dB);
@@ -25,24 +28,31 @@ plot(freq,[S21_16;S21_84],'r--')
 
 % plot(freq,[S21_02;S21_50; S21_98]);
 
-s_max = max(S21_abs,[],'all');
-s_min = min(S21_abs,[],'all');
-s_scale = 
-s = S21_abs;
+% s_max = max(S21_abs,[],'all');
+% s_min = min(S21_abs,[],'all');
+% s_scale = (1-2/n_samples)/(s_max-s_min);
+% s_bias = s_max*s_scale-(1-1/n_samples);
+% s = S21_abs*s_scale-s_bias;
+% s =  log(s./(1-s));
+is_good_performance = S21_dB > -3;
+good_indices = find(is_good_performance);
+[sample_indices,freq_indices] = ind2sub([n_sample,n_freq],good_indices);
+
+pdf_freq_idx = 20;
+f = figure(5);
+Hmc = histogram( s(:,pdf_freq_idx) ,50,'Normalization','pdf', 'DisplayStyle','bar', 'FaceColor',[0.7 0.7 0.7]);
+
 
 [n_samples,d] = size(training_samples);
-m = 3;
+m = 4;
 N = (m+1)*ones(d,1);
 r = 3;
 x = TTrand(N,r);
 x = TTorthogonalizeLR(x);
 x{d} = x{d}/norm( x{d},'fro');
-x{1}(1) = s(1,1);
-for i = 1:d
-    x{i}(1)=1;
-end
+
 
 
 
 [y_out,PC_coefficients,training_err,test_err,n_iterations] = ...
-    pc_collocation_tensor_optimization(training_samples,s,x,training_samples,m,'Hermite','TT-Newton',0.3,0.2,r);
+    pc_collocation_tensor_optimization(training_samples,s(:,80),x,training_samples,m,'Hermite','TT-Newton',0.3,0.2,r);

@@ -1,13 +1,16 @@
 clear variables
 
-freq = linspace(0.5e9,14e9,101);
+
 training_data = load('Tests/Filter/data_training.mat');
 training_samples = training_data.samples;
 [n_samples,~] = size(training_samples);
 S21= ((training_data.S21));
+[~,n_freq] = size(S21);
+freq = linspace(0.5e9,14e9,n_freq);
 
 S21_abs = abs(S21);
 S21_dB = 20*log10(abs(S21));
+
 
 
 S21_sort = sort(S21_dB);
@@ -26,13 +29,15 @@ plot(freq,[S21_16;S21_84],'r--')
 
 % plot(freq,[S21_02;S21_50; S21_98]);
 
-s_max = max(S21_abs,[],'all');
-s_min = min(S21_abs,[],'all');
-s_scale = (1-2/n_samples)/(s_max-s_min);
-s_bias = s_max*s_scale-(1-1/n_samples);
-s = S21_abs*s_scale-s_bias;
-s =  log(s./(1-s));
-
+% s_max = max(S21_abs,[],'all');
+% s_min = min(S21_abs,[],'all');
+% s_scale = (1-2/n_samples)/(s_max-s_min);
+% s_bias = s_max*s_scale-(1-1/n_samples);
+% s = S21_abs*s_scale-s_bias;
+% s =  log(s./(1-s));
+is_good_performance = S21_dB > -3;
+good_indices = find(is_good_performance);
+[sample_indices,freq_indices] = ind2sub([n_samples,n_freq],good_indices);
 
 pdf_freq_idx = 20;
 f = figure(5);
