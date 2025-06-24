@@ -1,6 +1,6 @@
 clear variables
 
-load('Tests/TlineNet/TlineNet_29par.mat')
+load('Tests/coupled_tline/coupled_tl_28par.mat')
 
 [n_samples,d] = size(training_samples);
 m = 3;
@@ -9,7 +9,7 @@ m = 3;
 % norm(vouts_total-vouts)/norm(vouts);
 
 N = (m+1)*ones(d,1);
-r = 3;
+r = 4;
 x = TTrand(N,r);
 x = TTorthogonalizeLR(x);
 x{d} = x{d}/norm( x{d},'fro');
@@ -20,6 +20,6 @@ end
 
 tic
  [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = ...
-     pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.4,0.2,3);
+     pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.3,0.2,3);
 toc
 norm(vouts_TT-vouts)/norm(vouts)
