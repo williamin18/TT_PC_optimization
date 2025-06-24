@@ -22,4 +22,4 @@ tic
  [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = ...
      pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-Newton',0.4,0.2,3);
 toc
-norm(vouts_TT-vouts)/norm(vouts)
+norm(vouts_TT-vouts,'fro')/norm(vouts,'fro')
