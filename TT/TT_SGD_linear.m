@@ -10,8 +10,6 @@ break_counter = 0;
 break_limit = 5;
 err_old = 100;
 beta = 0;
-batches = ceil(n_samples/batch_size);
-max_epoches = ceil(max_epoches/batches);
 n_iterations = 0;
 
 for epoch = 1:max_epoches
@@ -28,21 +26,32 @@ for epoch = 1:max_epoches
         b_j = b(j:j+batch_size-1);
 
         % preconditioner = ones(batch_size,1);
-        % for i = 1:n_d
-        %     preconditioner = preconditioner./reshape(dot(A_j(i,:,:),A_j(i,:,:),2),batch_size,1);
+        % for i = 1:d
+        %     preconditioner = preconditioner./reshape(dot(A_j{i},A_j{i},2),batch_size,1);
         % end
         % preconditioner = preconditioner.^0.5;
         % preconditioner = diag(preconditioner);
-        % A_j(1,:,:) = reshape(A_j(1,:,:),m,batch_size)*preconditioner;
+        % A_j{1} = preconditioner*A_j{1};
         % b_j = preconditioner*b_j;
 
         r =  b_j - multi_r1_times_TT(A_j,x);
+
+        if(norm(r)/norm(b_j) < tol)
+            break_counter = break_counter+1;
+        else
+            break_counter = 0;
+        end
+        if break_counter >= break_limit
+            break
+        end
+
         df = multi_r1_times_vec_to_TT(A_j,r);
         df = TTaxby(1,df,-lambda,x);
 
 
         Adf = multi_r1_times_TT(A_j,df);
-        step_size = (Adf'*r)/(Adf'*Adf);
+        % step_size = (Adf'*r)/(Adf'*Adf);
+        step_size = r'*r/TTdot(df,df);
         x = TTaxby(1,x,step_size,df);
         x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
 
@@ -70,24 +79,19 @@ for epoch = 1:max_epoches
         % end
         training_err = norm(r)/norm(b);
         r_test = multi_r1_times_TT(A_test,x) - b_test;
-        test_err = norm(r_test)/norm(b_test);
-
-
         n_iterations = n_iterations+1;
-        if test_err < tol 
-            break
-        end
-        if   err_old-test_err < tol/100 
-            break_counter = break_counter+1;
-            if break_counter > break_limit
-                break
-            end
-        else
-            break_counter = 0;
-        end
-        err_old = test_err;
 
     end
+    test_err = norm(r_test)/norm(b_test);
+    if   err_old-test_err < tol/100
+        break_counter = break_counter+1;
+        if break_counter > break_limit
+            break
+        end
+    else
+        break_counter = 0;
+    end
+    err_old = test_err;
     if test_err < tol || break_counter > break_limit
         break
     end
