@@ -30,6 +30,6 @@ tic
 
 
  [vouts_TT,PC_coefficients,training_err,test_err,n_iterations] = ...
-     pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-SGD',0.3,0.2,8);
+     pc_collocation_tensor_optimization(training_samples,vouts_train,x,samples,m,'Hermite','TT-SGD',0.3,0.2,10);
 toc
 norm(vouts_TT-vouts,'fro')/norm(vouts,'fro')
