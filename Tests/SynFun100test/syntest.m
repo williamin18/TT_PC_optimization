@@ -24,20 +24,35 @@ out_train = uq_many_inputs_model(y);
 d = 100;
 m = 3;
 
+
+% s = TTrand(N,r);
+% s{1}(1) = out_train(1);
+% for i = 1:d
+%     s{i}(1)=1;
+% end
+
+s = cell(d,1);
+for i = 1:d
+    s{i} = zeros(4,1);
+end
+
+out_predict = pc_collocation_tensor_optimization(xi_train,out_train,s,xi_test,m,'Hermite','TT-SGD',0.3,0.2,20);
+
 N = (m+1)*ones(d,1);
 r = 3;
 s = TTrand(N,r);
-% s{d} = s{d}/norm(s{d},'fro');
 s{1}(1) = out_train(1);
 for i = 1:d
     s{i}(1)=1;
 end
-out_predict = pc_collocation_tensor_optimization(xi_train,out_train,s,xi_test,m,'Hermite','TT-ALS',0.3,0.2,3);
 
+out_predict2 = pc_collocation_tensor_optimization(xi_train,out_train,s,xi_test,m,'Hermite','TT-Newton',0.3,0.2,3);
 
 
 norm(out_predict-out_test,'fro')/norm(out_test,'fro')
-[mean([out_predict]), mean([out_test])]
-[std([out_predict]), std([out_test])]
+norm(out_predict2-out_test,'fro')/norm(out_test,'fro')
+
+[mean(out_predict),mean(out_predict2), mean(out_test)]
+[std(out_predict),std(out_predict2), std(out_test)]
 figure(1)
 histogram(out_test)

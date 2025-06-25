@@ -9,7 +9,7 @@ m = 3;
 % norm(vouts_total-vouts)/norm(vouts);
 
 N = (m+1)*ones(d,1);
-r = 4;
+r = 3;
 x = TTrand(N,r);
 x = TTorthogonalizeLR(x);
 x{d} = x{d}/norm( x{d},'fro');
