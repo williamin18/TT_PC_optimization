@@ -7,10 +7,12 @@ d = length(A);
 
 
 break_counter = 0;
-break_limit = 10;
-err_min = 100;
+break_limit = 20;
+err_min = norm(multi_r1_times_TT(A_test,x) - b_test)/norm(b_test);
+% err_min = 100;
 n_iterations = 0;
 x_min = x;
+
 for epoch = 1:max_epoches
     new_order = randperm(n_samples);
     for i = 1:d
@@ -26,16 +28,15 @@ for epoch = 1:max_epoches
 
 
         
-            r =  b_j - multi_r1_times_TT(A_j,x);
-            training_err = norm(r)/norm(b);
-            df = multi_r1_times_vec_to_TT(A_j,r);
-            df = TTaxby(1,df,-lambda,x);
-    %         Adf = multi_r1_times_TT(A_j,df);
-    %         step_size = (Adf'*r)/(Adf'*Adf);
-            step_size = r'*r/TTdot(df,df);
-            x = TTaxby(1,x,step_size,df);
-            x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
-        
+        r =  b_j - multi_r1_times_TT(A_j,x);
+        training_err = norm(r)/norm(b);
+        df = multi_r1_times_vec_to_TT(A_j,r);
+        % df = TTrounding_Randomize_then_Orthogonalize(df, [1 r_round*ones(1,d-1) 1]);
+        % Adf = multi_r1_times_TT(A_j,df);
+        % step_size = (Adf'*r)/(Adf'*Adf);
+        step_size = r'*r/TTdot(df,df)*max((10)/(10+n_iterations),0.5);
+        x = TTaxby(1,x,step_size,df);
+        x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
         
         n_iterations = n_iterations+1;
         r_test = multi_r1_times_TT(A_test,x) - b_test;

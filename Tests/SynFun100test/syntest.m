@@ -1,4 +1,6 @@
-n_train = 1000;
+close all
+
+n_train = 660;
 xi_test = 2*rand(10000,100)-1;
 xi_train = 2*lhsdesign(n_train,100)-1;
 
@@ -41,6 +43,7 @@ out_predict = pc_collocation_tensor_optimization(xi_train,out_train,s,xi_test,m,
 N = (m+1)*ones(d,1);
 r = 3;
 s = TTrand(N,r);
+s = TTorthogonalizeLR(s);
 s{1}(1) = out_train(1);
 for i = 1:d
     s{i}(1)=1;
@@ -54,5 +57,16 @@ norm(out_predict2-out_test,'fro')/norm(out_test,'fro')
 
 [mean(out_predict),mean(out_predict2), mean(out_test)]
 [std(out_predict),std(out_predict2), std(out_test)]
+
+
 figure(1)
-histogram(out_test)
+histogram(out_test,50,'Normalization','pdf', 'DisplayStyle','bar', 'FaceColor',[0.7 0.7 0.7]);
+hold on
+grid on
+[N,edges] = histcounts(out_predict2, 'Normalization', 'pdf');
+plot(edges(1:end-1)+0.5,N,'ro--','LineWidth',1)
+[N,edges] = histcounts(out_predict, 'Normalization', 'pdf');
+plot(edges(1:end-1)+0.5,N,'gsquare--','LineWidth',1)
+set(gca,'GridLineStyle','--')
+set(gca, 'FontName', 'Times New Roman')
+legend('MC', 'TT-Newton','TT-GD','interpreter','LaTex')
