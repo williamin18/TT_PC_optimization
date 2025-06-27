@@ -5,7 +5,7 @@ function [b_predict,PC_coefficients,training_err,test_err,n_iterations] = ...
 switch method
     case "TT-ALS"
         f = @TT_ALS;
-        max_iteration = 500;
+        max_iteration = 1000;
     case "TT-Newton"
         f = @TT_Newton_GD;
         max_iteration = 200;
