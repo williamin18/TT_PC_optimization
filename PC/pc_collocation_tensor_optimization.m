@@ -10,15 +10,17 @@ switch method
         f = @TT_Newton_GD;
         max_iteration = 200;
     case "TT-SGD"
-        max_iteration = 20;
+        x0 = x;
         if isempty(varargin)
             batch_size = 60;
+            max_iteration = 10;
         else
             batch_size = varargin{1};
+            max_iteration = varargin{2};
         end
         f = @(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda)TT_SGD_linear(A,b,x,r_round,tol,max_epoches,A_test,b_test,lambda,batch_size);
     otherwise
-        err('Unsupported optimization type')
+        error('Unsupported optimization method name')
 end
     
 
@@ -27,7 +29,7 @@ lambda1 = left_preconditioning_parameter;
 lambda2 = regularization_parameter;
 
 [n_samples,d] = size(xi_train);
-n_train = round(0.9*n_samples);
+n_train = round(n_samples*10/11);
 training_samples = genPolynomialSamplesTensor(xi_train(1:n_train,:),order,polynomial);
 training_out = b_train(1:n_train,:);
 
@@ -54,9 +56,13 @@ test_err = zeros(n_b,1);
 n_iterations = zeros(n_b,1);
 
 for i = 1:n_b
-    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,r_max,1e-3,max_iteration,test_samples,test_out(:,i),lambda2);
+    [x,training_err(i),test_err(i),n_iterations(i)] = f(training_samples,training_out(:,i),x,r_max,1e-2,max_iteration,test_samples,test_out(:,i),lambda2);
     [training_err(i) test_err(i) n_iterations(i)] 
     PC_coefficients{i} = x;
+
+    if method == "TT-SGD"
+        x = x0;
+    end
 end
 
 
