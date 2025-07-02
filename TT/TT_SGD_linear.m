@@ -44,7 +44,7 @@ for epoch = 1:max_epoches
         % df = TTrounding_Randomize_then_Orthogonalize(df, [1 r_round*ones(1,d-1) 1]);
         % Adf = multi_r1_times_TT(A_j,df);
         % step_size = (Adf'*r)/(Adf'*Adf);
-        step_size = r'*r/TTdot(df,df)*max((30)/(30+n_iterations),0.5);
+        step_size = r'*r/TTdot(df,df);%*max((30)/(30+n_iterations),0.5);
         x = TTaxby(1,x,step_size,df);
         x = TTrounding_Randomize_then_Orthogonalize(x,[1 r_round*ones(1,d-1) 1]);
         
